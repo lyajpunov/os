@@ -34,7 +34,7 @@ SECTION MBR vstart=0x7c00
 
     mov eax,LOADER_START_SECTOR	 ; Loader起始扇区 
     mov bx, LOADER_BASE_ADDR     ; Loader起始内存地址
-    mov cx, 10			         ; 待写入扇区数
+    mov cx, 8			         ; 待写入扇区数
     call rd_disk_m_16		     ; 执行读取硬盘程序
   
     jmp LOADER_BASE_ADDR         ; 跳转到Loader执行

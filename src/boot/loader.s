@@ -138,14 +138,14 @@ loader_start:
     or   eax, 0x00000001
     mov  cr0, eax
 
-.jmp_bit_32
+.jmp_bit_32:
     jmp  SELECTOR_CODE:p_mode_start ; 刷新流水线，避免分支预测的影响
 					                ; 远跳将导致之前做的预测失效，从而起到了刷新的作用。
 
 .error_hlt:		      ;出错则挂起
     hlt
 
-; 下面就是保护模式下的程序了
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 下面就是保护模式下的程序了
 [bits 32]
 p_mode_start:
     mov ax, SELECTOR_DATA
@@ -156,10 +156,10 @@ p_mode_start:
     mov ax, SELECTOR_VIDEO
     mov gs, ax
 
-    mov byte [gs:320], 'M'
-    mov byte [gs:322], 'A'
-    mov byte [gs:324], 'I'
-    mov byte [gs:326], 'N'
+    mov eax, KERNEL_START_SECTOR  ; kernel.bin 所在的扇区号
+    mov ebx, KERNEL_BIN_BASE_ADDR ; kernel.bin 零时存放地址
+    mov ecx, 200                  ; 读入的扇区数
+    call rd_disk_m_32 
 
     call setup_page ; 创建页目录及页表并初始化页内存位图
 
@@ -188,17 +188,64 @@ p_mode_start:
     ;在开启分页后,用gdt新的地址重新加载
     lgdt [gdt_ptr]             ; 重新加载
 
-    mov byte [gs:320], 'V'     ;视频段段基址已经被更新,用字符v表示virtual addr
-    mov byte [gs:322], 'i'     ;视频段段基址已经被更新,用字符v表示virtual addr
-    mov byte [gs:324], 'r'     ;视频段段基址已经被更新,用字符v表示virtual addr
-    mov byte [gs:326], 't'     ;视频段段基址已经被更新,用字符v表示virtual addr
-    mov byte [gs:328], 'u'     ;视频段段基址已经被更新,用字符v表示virtual addr
-    mov byte [gs:330], 'a'     ;视频段段基址已经被更新,用字符v表示virtual addr
-    mov byte [gs:332], 'l'     ;视频段段基址已经被更新,用字符v表示virtual addr
+    mov byte [gs:320], 'V'
+    mov byte [gs:324], 'r'
+    mov byte [gs:322], 'i'
+    mov byte [gs:326], 't'
+    mov byte [gs:328], 'u'
+    mov byte [gs:330], 'a'
+    mov byte [gs:332], 'l'
 
-    jmp $
+    call kernel_init
+    mov esp, 0xc009f000
+    jmp KERNEL_ENTRY_POINT
 
-setup_page:                      ; 创建页目录及页表
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 将kernel.bin的segment拷贝到编译地址
+kernel_init:
+    xor eax, eax
+    xor ebx, ebx		;ebx记录程序头表地址
+    xor ecx, ecx		;cx记录程序头表中的program header数量
+    xor edx, edx		;dx 记录program header尺寸,即e_phentsize
+
+    mov dx,  [KERNEL_BIN_BASE_ADDR + 42]  ; 偏移文件42字节处的属性是e_phentsize,表示program header大小
+    mov ebx, [KERNEL_BIN_BASE_ADDR + 28]  ; 偏移文件开始部分28字节的地方是e_phoff,表示第1个program header在文件中的偏移量
+					                      ; 其实该值是0x34,不过还是谨慎一点，这里来读取实际值
+    add ebx, KERNEL_BIN_BASE_ADDR
+    mov cx, [KERNEL_BIN_BASE_ADDR + 44]   ; 偏移文件开始部分44字节的地方是e_phnum,表示有几个program header
+.each_segment:
+    cmp byte [ebx + 0], PT_NULL		      ; 若p_type等于 PT_NULL,说明此program header未使用。
+    je .PTNULL
+
+    push dword [ebx + 16]		          ; program header中偏移16字节的地方是p_filesz,压入函数memcpy的第三个参数:size
+    mov eax, [ebx + 4]			          ; 距程序头偏移量为4字节的位置是p_offset
+    add eax, KERNEL_BIN_BASE_ADDR	      ; 加上kernel.bin被加载到的物理地址,eax为该段的物理地址
+    push eax				              ; 压入函数memcpy的第二个参数:源地址
+    push dword [ebx + 8]			      ; 压入函数memcpy的第一个参数:目的地址,偏移程序头8字节的位置是p_vaddr，这就是目的地址
+    call mem_cpy				          ; 调用mem_cpy完成段复制
+    add esp,12				              ; 清理栈中压入的三个参数
+.PTNULL:
+    add ebx, edx				          ; edx为program header大小,即e_phentsize,在此ebx指向下一个program header
+    loop .each_segment
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 诸字节拷贝 mem_cpy(dst,src,size)
+mem_cpy:		      
+    cld
+    push ebp
+    mov ebp, esp
+    push ecx		       ; rep指令用到了ecx，但ecx对于外层段的循环还有用，故先入栈备份
+    mov edi, [ebp + 8]	   ; dst
+    mov esi, [ebp + 12]	   ; src
+    mov ecx, [ebp + 16]	   ; size
+    rep movsb		       ; 逐字节拷贝
+
+    ;恢复环境
+    pop ecx		
+    pop ebp
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 创建页目录及页表
+setup_page:
     mov ecx, 4096
     mov esi, 0
 .clear_page_dir:                 ; 清理页目录空间
@@ -243,4 +290,84 @@ setup_page:                      ; 创建页目录及页表
     inc esi
     add eax, 0x1000
     loop .create_kernel_pde
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 读取硬盘
+rd_disk_m_32:
+							; eax=LBA扇区号
+							; ebx=将数据写入的内存地址
+							; ecx=读入的扇区数
+    mov esi,eax	            ; 备份eax
+    mov di,cx		        ; 备份扇区数到di
+
+;第1步：设置要读取的扇区数
+    mov dx,0x1f2
+    mov al,cl
+    out dx,al            ;读取的扇区数
+    mov eax,esi	         ;恢复ax
+
+;第2步：将LBA地址存入0x1f3 ~ 0x1f6
+    ;LBA地址7~0位写入端口0x1f3
+    mov dx,0x1f3                       
+    out dx,al                          
+    ;LBA地址15~8位写入端口0x1f4
+    mov cl,8
+    shr eax,cl
+    mov dx,0x1f4
+    out dx,al
+    ;LBA地址23~16位写入端口0x1f5
+    shr eax,cl
+    mov dx,0x1f5
+    out dx,al
+
+    shr eax,cl
+    and al,0x0f	   ; lba第24~27位
+    or al,0xe0	   ; 设置7～4位为1110,表示lba模式
+    mov dx,0x1f6
+    out dx,al
+
+;第3步：向0x1f7端口写入读命令，0x20 
+    mov dx,0x1f7
+    mov al,0x20                        
+    out dx,al
+
+;第4步：检测硬盘状态
+.not_ready:		   ; 测试0x1f7端口(status寄存器)的的BSY位
+
+    nop
+    in al,dx
+    and al,0x88	   ; 第4位为1表示硬盘控制器已准备好数据传输,第7位为1表示硬盘忙
+    cmp al,0x08
+    jnz .not_ready ; 若未准备好,继续等。
+
+;第5步：从0x1f0端口读数据
+    mov ax, di	   ; 以下从硬盘端口读数据用insw指令更快捷,不过尽可能多的演示命令使用,
+			       ; 在此先用这种方法,在后面内容会用到insw和outsw等
+    mov dx, 256	   ; di为要读取的扇区数,一个扇区有512字节,每次读入一个字,共需di*512/2次,所以di*256
+    mul dx
+    mov cx, ax	   
+    mov dx, 0x1f0
+.go_on_read:
+    in ax,dx		
+    mov [ebx], ax
+    add ebx, 2
+			  ; 由于在实模式下偏移地址为16位,所以用bx只会访问到0~FFFFh的偏移。
+			  ; loader的栈指针为0x900,bx为指向的数据输出缓冲区,且为16位，
+			  ; 超过0xffff后,bx部分会从0开始,所以当要读取的扇区数过大,待写入的地址超过bx的范围时，
+			  ; 从硬盘上读出的数据会把0x0000~0xffff的覆盖，
+			  ; 造成栈被破坏,所以ret返回时,返回地址被破坏了,已经不是之前正确的地址,
+			  ; 故程序出会错,不知道会跑到哪里去。
+			  ; 所以改为ebx代替bx指向缓冲区,这样生成的机器码前面会有0x66和0x67来反转。
+			  ; 0X66用于反转默认的操作数大小! 0X67用于反转默认的寻址方式.
+			  ; cpu处于16位模式时,会理所当然的认为操作数和寻址都是16位,处于32位模式时,
+			  ; 也会认为要执行的指令是32位.
+			  ; 当我们在其中任意模式下用了另外模式的寻址方式或操作数大小(姑且认为16位模式用16位字节操作数，
+			  ; 32位模式下用32字节的操作数)时,编译器会在指令前帮我们加上0x66或0x67，
+			  ; 临时改变当前cpu模式到另外的模式下.
+			  ; 假设当前运行在16位模式,遇到0X66时,操作数大小变为32位.
+			  ; 假设当前运行在32位模式,遇到0X66时,操作数大小变为16位.
+			  ; 假设当前运行在16位模式,遇到0X67时,寻址方式变为32位寻址
+			  ; 假设当前运行在32位模式,遇到0X67时,寻址方式变为16位寻址.
+
+    loop .go_on_read
     ret
