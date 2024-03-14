@@ -1,10 +1,18 @@
 // os/src/kernel/main.c
 
+#include <print.h>
+
 int main(void) {
-    __asm__ __volatile__ ("movb $'M', %%gs:480" : : : "memory");
-    __asm__ __volatile__ ("movb $'A', %%gs:482" : : : "memory");
-    __asm__ __volatile__ ("movb $'I', %%gs:484" : : : "memory");
-    __asm__ __volatile__ ("movb $'N', %%gs:486" : : : "memory");
+    put_char('M');
+    put_char('A');
+    put_char('I');
+    put_char('N');
+    put_char('!');
+    put_char('\n');
+    put_str("12345\n");
+    put_int(123456780);
+    put_char('\n');
+    put_hex(12345678);
     while (1) ;
     return 0;
 }
