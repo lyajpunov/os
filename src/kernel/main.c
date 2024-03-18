@@ -1,18 +1,11 @@
 // os/src/kernel/main.c
 
-#include <print.h>
+#include "print.h"
+#include "init.h"
 
 int main(void) {
-    put_char('M');
-    put_char('A');
-    put_char('I');
-    put_char('N');
-    put_char('!');
-    put_char('\n');
-    put_str("12345\n");
-    put_int(123456780);
-    put_char('\n');
-    put_hex(12345678);
+    init_all();
+    asm volatile("sti");	     // 为演示中断处理,在此临时开中断
     while (1) ;
     return 0;
 }
