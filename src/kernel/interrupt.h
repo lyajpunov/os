@@ -25,7 +25,20 @@ struct gate_desc {
    uint16_t    func_offset_high_word;
 }__attribute__((packed));      // 避免编译器优化，直接给对齐了
 
+/* 定义中断的状态 */
+enum intr_status {
+    INTR_OFF,			    // 中断关闭
+    INTR_ON		            // 中断打开
+};
 
+/* 获得当前中断状态 */
+enum intr_status intr_get_status(void);
+/* 设置当前中断状态 */
+enum intr_status intr_set_status (enum intr_status);
+/* 打开中断，并返回开中断之前的状态 */
+enum intr_status intr_enable (void);
+/* 关闭中断，并返回关中断之前的状态 */
+enum intr_status intr_disable (void);
 /* 初始化中断 */
 void idt_init(void);
 

@@ -9,9 +9,9 @@ void put_str(char* _str) {
     }
 }
 
+static const char int_digits[] = "0123456789";
 /* 把一个32位无符号数写到控制台光标处，十进制 */
 void put_int(uint32_t num) {
-    char int_digits[] = "0123456789";
     char int_string[20];  // 无符号整数转换为十六进制最多占据8位字符，再加上字符串结束符'\0'
     int i = 0;
 
@@ -39,9 +39,9 @@ void put_int(uint32_t num) {
     put_str(int_string);
 }
 
+static const char hex_digits[] = "0123456789ABCDEF";
 /* 把一个32位无符号数写到控制台光标处，十六进制 */
 void put_hex(uint32_t num) {
-    char hex_digits[] = "0123456789ABCDEF";
     char hex_string[9];  // 无符号整数转换为十六进制最多占据8位字符，再加上字符串结束符'\0'
     int i = 0;
 

@@ -79,11 +79,6 @@ static void general_intr_handler(uint8_t vec_nr) {
     while(1); // 能进入中断处理程序表明已经关闭了中断。
 }
 
-static void timer_interrupt(void) {
-    put_str("this is timer interrupt\n");
-    return;
-}
-
 /* 一般中断处理函数注册及异常名称注册 */
 static void exception_init(void) {	
     put_str("----exception_init begin!\n");
@@ -92,7 +87,7 @@ static void exception_init(void) {
         idt_table[i] = general_intr_handler;		    // 默认为general_intr_handler。
         intr_name[i] = "unknown";				        // 先统一赋值为unknown 
     }
-    idt_table[0x20] = timer_interrupt;
+    idt_table[0x20] = general_intr_handler;
     intr_name[0] = "#DE Divide Error";
     intr_name[1] = "#DB Debug Exception";
     intr_name[2] = "NMI Interrupt";
@@ -120,6 +115,44 @@ static void exception_init(void) {
     put_str("----exception_init end!\n");
 }
 
+
+/* 开中断并返回开中断前的状态*/
+enum intr_status intr_enable() {
+   enum intr_status old_status;
+   if (INTR_ON == intr_get_status()) {
+      old_status = INTR_ON;
+      return old_status;
+   } else {
+      old_status = INTR_OFF;
+      asm volatile("sti");	 // 开中断,sti指令将IF位置1
+      return old_status;
+   }
+}
+
+/* 关中断,并且返回关中断前的状态 */
+enum intr_status intr_disable() {     
+   enum intr_status old_status;
+   if (INTR_ON == intr_get_status()) {
+      old_status = INTR_ON;
+      asm volatile("cli" : : : "memory"); // 关中断,cli指令将IF位置0
+      return old_status;
+   } else {
+      old_status = INTR_OFF;
+      return old_status;
+   }
+}
+
+/* 将中断状态设置为status */
+enum intr_status intr_set_status(enum intr_status status) {
+   return status == INTR_ON ? intr_enable() : intr_disable();
+}
+
+/* 获取当前中断状态 */
+enum intr_status intr_get_status() {
+   uint32_t eflags = 0; 
+   GET_EFLAGS(eflags);
+   return (EFLAGS_IF & eflags) ? INTR_ON : INTR_OFF;
+}
 
 void idt_init() {
     put_str("idt_init start!\n");

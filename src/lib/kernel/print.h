@@ -11,6 +11,8 @@ void put_str(char* _str);
 void put_int(uint32_t num);
 /* 把一个32位无符号数写到控制台光标处，十六进制 */
 void put_hex(uint32_t num);
+/* 将光标移动到cursor_pos位 */
+void set_cursor(uint32_t cursor_pos);
 
 #endif
 

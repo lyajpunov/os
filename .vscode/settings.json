@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "interrupt.h": "c"
+        "interrupt.h": "c",
+        "global.h": "c",
+        "assert.h": "c",
+        "stdin.h": "c",
+        "list.h": "c",
+        "print.h": "c",
+        "init.h": "c"
     }
 }
