@@ -41,5 +41,8 @@ enum intr_status intr_enable (void);
 enum intr_status intr_disable (void);
 /* 初始化中断 */
 void idt_init(void);
+/* 在中断处理程序数组第vector_no个元素中注册安装中断处理程序function */
+void register_handler(uint8_t vector_no, intr_handler function);
+
 
 #endif

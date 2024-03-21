@@ -9,14 +9,16 @@ LDFLAG = -m elf_i386 -e main -Ttext 0xc0001500 -T os.lds
 INCUDIRS  := src/lib \
 			 src/lib/kernel \
 			 src/device \
-			 src/kernel
+			 src/kernel \
+			 src/thread
 INCLUDE   := $(patsubst %, -I %, $(INCUDIRS))
 
 ###################################################################################### C文件与S文件的编译
 SRCDIRS   := src/kernel \
 			 src/lib \
 			 src/lib/kernel \
-			 src/device
+			 src/device \
+			 src/thread
 
 SFILES    := $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.s))
 CFILES    := $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
