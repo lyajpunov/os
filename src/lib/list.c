@@ -10,8 +10,6 @@ void list_init(struct list *list) {
 }
 
 void list_insert_before(struct list_elem *before, struct list_elem *elem) {
-    enum intr_status old_status = intr_disable();
-
     /* 将before前驱元素的后继元素更新为elem, 暂时使before脱离链表*/
     before->prev->next = elem;
     /* 更新elem自己的前驱结点为before的前驱,
@@ -20,7 +18,6 @@ void list_insert_before(struct list_elem *before, struct list_elem *elem) {
     elem->next = before;
     /* 更新before的前驱结点为elem */
     before->prev = elem;
-    intr_set_status(old_status);
 }
 
 void list_push(struct list *plist, struct list_elem *elem) {
@@ -32,12 +29,8 @@ void list_append(struct list *plist, struct list_elem *elem) {
 }
 
 void list_remove(struct list_elem *pelem) {
-    enum intr_status old_status = intr_disable();
-
     pelem->prev->next = pelem->next;
     pelem->next->prev = pelem->prev;
-
-    intr_set_status(old_status);
 }
 
 struct list_elem *list_pop(struct list *plist) {

@@ -92,9 +92,9 @@ struct task_struct* running_thread(void);
 /* 初始化线程栈thread_stack,将待执行的函数和参数放到thread_stack中相应的位置 */
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);
 /* 初始化线程基本信息,name:线程名，prio:线程优先级 */
-void init_thread(struct task_struct* pthread, char* name, int prio);
+void init_thread(struct task_struct* pthread, char* name);
 /* 创建一个名为name，优先级为prio，运行函数function，函数参数func_arg的线程 */
-struct task_struct* thread_start(char* name, int prio, thread_func function, void* func_arg);
+struct task_struct* thread_start(char* name, thread_func function, void* func_arg);
 /* 切换任务 */
 void schedule(void);
 /* 初始化线程环境 */
