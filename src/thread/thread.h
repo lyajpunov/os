@@ -97,6 +97,10 @@ void init_thread(struct task_struct* pthread, char* name);
 struct task_struct* thread_start(char* name, thread_func function, void* func_arg);
 /* 切换任务 */
 void schedule(void);
+/* 当前线程将自己阻塞,标志其状态为stat. */
+void thread_block(enum task_status stat);
+/* 将线程pthread解除阻塞 */
+void thread_unblock(struct task_struct* pthread);
 /* 初始化线程环境 */
 void thread_init(void);
 #endif

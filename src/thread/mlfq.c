@@ -90,23 +90,15 @@ void mlfq_push_wspt(struct task_struct* pthread) {
     // 线程优先级,高优先级的先降级，但是时间片变多
     // 不知道什么优先级的，就先按照4来。
     if (pthread->priority == 4) {
-        pthread->priority = 4;
-        pthread->ticks = 4;
         list_append(&thread_ready_list8, &pthread->general_tag);
     }
     else if (pthread->priority == 8) {
-        pthread->priority = 8;
-        pthread->ticks = 8;
         list_append(&thread_ready_list16, &pthread->general_tag);
     }
     else if (pthread->priority == 16) {
-        pthread->priority = 16;
-        pthread->ticks = 16;
         list_append(&thread_ready_list32, &pthread->general_tag);
     }
     else if (pthread->priority == 32) {
-        pthread->priority = 32;
-        pthread->ticks = 32;
         list_append(&thread_ready_list32, &pthread->general_tag);
     }
     else {

@@ -66,10 +66,7 @@ struct task_struct* thread_start(char* name, thread_func function, void* func_ar
     struct task_struct* thread = get_kernel_pages(1);    // pcb程序控制块均位于内核空间，因为这部分内容是不允许用户知晓的
     init_thread(thread, name);                           // 初始化线程的基本信息
     thread_create(thread, function, func_arg);           // 创建线程
-
-    // 将其插入多级反馈优先队列
-    mlfq_new(thread);
-
+    mlfq_new(thread);                                    // 第一次插入多级反馈队列
     return thread;
 }
 
@@ -109,6 +106,27 @@ void schedule(void) {
     // 恢复到中断前的状态
     intr_set_status(schedule_intr);
 }
+
+/* 当前线程将自己阻塞,标志其状态为stat. */
+void thread_block(enum task_status stat) {
+    enum intr_status old_status = intr_disable();
+    struct task_struct* cur_thread = running_thread();
+    cur_thread->status = stat; // 置其状态为stat 
+    schedule();		           // 将当前线程换下处理器
+    intr_set_status(old_status);
+}
+
+/* 将线程pthread解除阻塞 */
+void thread_unblock(struct task_struct* pthread) {
+    enum intr_status old_status = intr_disable();
+    if (pthread->status != TASK_READY) {
+        pthread->priority = 4;      // 将当前线程的优先级置位4，使其优先得到调度
+        pthread->status = TASK_READY;
+        mlfq_push_wspt(pthread);
+    } 
+    intr_set_status(old_status);
+}
+
 
 /* 初始化线程环境 */
 void thread_init(void) {

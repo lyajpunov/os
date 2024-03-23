@@ -45,7 +45,7 @@ static void intr_timer_handler(void) {
     // 从内核第一次处理时间中断后开始至今的滴哒数,内核态和用户态总共的嘀哒数
     ticks++;
 
-    // 当前任务的时间片用完就换下
+    // 当前任务的时间片用完就开始调度
     if (cur_thread->ticks == 0) {
         schedule();
     }
