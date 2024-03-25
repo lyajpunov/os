@@ -30,7 +30,7 @@ static void pic_init(void) {
     outb (PIC_S_DATA, 0x02);    // ICW3: 设置从片连接到主片的IR2引脚
     outb (PIC_S_DATA, 0x01);    // ICW4: 8086模式, 正常EOI
 
-    outb (PIC_M_DATA, 0xfe);    // 打开主片上IR0,也就是目前只接受时钟产生的中断
+    outb (PIC_M_DATA, 0xfc);    // 打开主片上IR0,
     outb (PIC_S_DATA, 0xff);
 
     put_str("----pic_init done!\n");

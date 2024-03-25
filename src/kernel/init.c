@@ -4,6 +4,8 @@
 #include "timer.h"
 #include "memory.h"
 #include "thread.h"
+#include "console.h"
+#include "keyboard.h"
 
 void init_all(void) {
     /* 1、初始化中断 */
@@ -14,4 +16,8 @@ void init_all(void) {
     mem_init();
     /* 4、线程初始化*/
     thread_init();
+    /* 5、终端初始化 */
+    console_init();
+    /* 6、键盘初始化 */
+    keyboard_init();
 }
