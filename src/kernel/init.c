@@ -6,6 +6,7 @@
 #include "thread.h"
 #include "console.h"
 #include "keyboard.h"
+#include "tss.h"
 
 void init_all(void) {
     /* 1、初始化中断 */
@@ -20,4 +21,6 @@ void init_all(void) {
     console_init();
     /* 6、键盘初始化 */
     keyboard_init();
+    /* 7、TSS状态段初始化 */
+    tss_init();
 }

@@ -15,7 +15,7 @@ int main(void) {
     init_all();
     intr_enable();
     console_put_str("I am kernel\n");
-    thread_start("k_thread_a", k_thread_a, "argA ");
+    // thread_start("k_thread_a", k_thread_a, "argA ");
     // thread_start("k_thread_b", k_thread_b, "argB "); 
     while (1);
     return 0;

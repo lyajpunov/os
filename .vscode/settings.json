@@ -8,6 +8,7 @@
         "print.h": "c",
         "init.h": "c",
         "io.h": "c",
-        "ioqueue.h": "c"
+        "ioqueue.h": "c",
+        "stdint.h": "c"
     }
 }

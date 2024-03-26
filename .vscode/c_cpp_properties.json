@@ -7,7 +7,9 @@
                 "${workspaceFolder}/src/kernel",
                 "${workspaceFolder}/src/device",
                 "${workspaceFolder}/src/lib",
-                "${workspaceFolder}/src/lib/kernel"
+                "${workspaceFolder}/src/lib/kernel",
+                "${workspaceFolder}/src/lib/user",
+                "${workspaceFolder}/src/userprog"
                 
             ],
             "defines": [],
