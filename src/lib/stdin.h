@@ -14,5 +14,6 @@ typedef unsigned long long int uint64_t;
 #define bool uint32_t
 #define false 0
 #define true 1
+#define DIV_ROUND_UP(X, STEP) ((X + STEP - 1) / (STEP))
 
 #endif

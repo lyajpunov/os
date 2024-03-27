@@ -5,6 +5,8 @@
 #include "print.h"
 #include "interrupt.h"
 #include "mlfq.h"
+#include "assert.h"
+#include "process.h"
 
 struct task_struct* main_thread;    // 主线程PCB，也就是我们刚进内核的程序，现在运行的程序
 
@@ -81,9 +83,8 @@ static void make_main_thread(void) {
 
 /* 切换任务 */
 void schedule(void) {
-    // 关中断,确保下面的切换过程无人打扰
-    enum intr_status schedule_intr = intr_disable();
-
+    ASSERT(intr_get_status() == INTR_OFF);
+    
     // 获得当前正在运行的程序的线程pcb
     struct task_struct* cur = running_thread();
     // 若此线程时间片到了，那么将其重新加入到反馈优先队列
@@ -100,11 +101,12 @@ void schedule(void) {
     struct task_struct* next = mlfq_pop();
     // 将就绪队列的任务的状态改为运行态
     next->status = TASK_RUNNING;
+
+    // 击活任务页表等
+    process_activate(next);
+
     // 切换两个任务
     switch_to(cur, next);
-
-    // 恢复到中断前的状态
-    intr_set_status(schedule_intr);
 }
 
 /* 当前线程将自己阻塞,标志其状态为stat. */

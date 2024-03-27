@@ -22,7 +22,6 @@
 #define DESC_TYPE_DATA  2	// x=0,e=0,w=1,a=0 数据段是不可执行的,向上扩展的,可写的,已访问位a清0.
 #define DESC_TYPE_TSS   9	// B位为0,不忙
 
-
 #define	RPL0  0
 #define	RPL1  1
 #define	RPL2  2
@@ -40,13 +39,13 @@
 #define SELECTOR_U_DATA	   ((6 << 3) + (TI_GDT << 2) + RPL3) // 用户数据段选择子
 #define SELECTOR_U_STACK   ((6 << 3) + (TI_GDT << 2) + RPL3) // 用户栈段选择子
 
-#define GDT_ATTR_HIGH		     ((DESC_G_4K << 7) + (DESC_D_32 << 6) + (DESC_L << 5) + (DESC_AVL << 4))
+#define GDT_ATTR_HIGH		       ((DESC_G_4K << 7) + (DESC_D_32 << 6) + (DESC_L << 5) + (DESC_AVL << 4))
 #define GDT_CODE_ATTR_LOW_DPL3	 ((DESC_P << 7) + (DESC_DPL_3 << 5) + (DESC_S_CODE << 4) + DESC_TYPE_CODE)
 #define GDT_DATA_ATTR_LOW_DPL3	 ((DESC_P << 7) + (DESC_DPL_3 << 5) + (DESC_S_DATA << 4) + DESC_TYPE_DATA)
 
 
 /* TSS描述符属性 */
-#define TSS_DESC_D  0 
+#define TSS_DESC_D    0 
 #define TSS_ATTR_HIGH ((DESC_G_4K << 7) + (TSS_DESC_D << 6) + (DESC_L << 5) + (DESC_AVL << 4) + 0x0)
 #define TSS_ATTR_LOW  ((DESC_P << 7) + (DESC_DPL_0 << 5) + (DESC_S_SYS << 4) + DESC_TYPE_TSS)
 
@@ -67,5 +66,45 @@ struct gdt_desc {
 #define	 IDT_DESC_16_TYPE     0x6   // 16位的门，不用，定义它只为和32位门区分
 #define	 IDT_DESC_ATTR_DPL0  ((IDT_DESC_P << 7) + (IDT_DESC_DPL0 << 5) + IDT_DESC_32_TYPE)
 #define	 IDT_DESC_ATTR_DPL3  ((IDT_DESC_P << 7) + (IDT_DESC_DPL3 << 5) + IDT_DESC_32_TYPE)
+
+//---------------    eflags属性    ---------------- 
+
+/********************************************************
+--------------------------------------------------------------
+		  Intel 8086 Eflags Register
+--------------------------------------------------------------
+*
+*     15|14|13|12|11|10|F|E|D C|B|A|9|8|7|6|5|4|3|2|1|0|
+*      |  |  |  |  |  | | |  |  | | | | | | | | | | | '---  CF……Carry Flag
+*      |  |  |  |  |  | | |  |  | | | | | | | | | | '---  1 MBS
+*      |  |  |  |  |  | | |  |  | | | | | | | | | '---  PF……Parity Flag
+*      |  |  |  |  |  | | |  |  | | | | | | | | '---  0
+*      |  |  |  |  |  | | |  |  | | | | | | | '---  AF……Auxiliary Flag
+*      |  |  |  |  |  | | |  |  | | | | | | '---  0
+*      |  |  |  |  |  | | |  |  | | | | | '---  ZF……Zero Flag
+*      |  |  |  |  |  | | |  |  | | | | '---  SF……Sign Flag
+*      |  |  |  |  |  | | |  |  | | | '---  TF……Trap Flag
+*      |  |  |  |  |  | | |  |  | | '---  IF……Interrupt Flag
+*      |  |  |  |  |  | | |  |  | '---  DF……Direction Flag
+*      |  |  |  |  |  | | |  |  '---  OF……Overflow flag
+*      |  |  |  |  |  | | |  '----  IOPL……I/O Privilege Level
+*      |  |  |  |  |  | | '-----  NT……Nested Task Flag
+*      |  |  |  |  |  | '-----  0
+*      |  |  |  |  |  '-----  RF……Resume Flag
+*      |  |  |  |  '------  VM……Virtual Mode Flag
+*      |  |  |  '-----  AC……Alignment Check
+*      |  |  '-----  VIF……Virtual Interrupt Flag  
+*      |  '-----  VIP……Virtual Interrupt Pending
+*      '-----  ID……ID Flag
+*
+*
+**********************************************************/
+
+
+#define EFLAGS_MBS	(1 << 1)	// 此项必须要设置
+#define EFLAGS_IF_1	(1 << 9)	// if为1,开中断
+#define EFLAGS_IF_0	0		   // if为0,关中断
+#define EFLAGS_IOPL_3	(3 << 12)	// IOPL3,用于测试用户程序在非系统调用下进行IO
+#define EFLAGS_IOPL_0	(0 << 12)	// IOPL0
 
 #endif

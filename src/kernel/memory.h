@@ -31,13 +31,6 @@ enum pool_flags {
     PF_USER = 2	     // 用户内存池
 };
 
-/* 内存池结构 */
-struct pool {
-   struct bitmap pool_bitmap; // 本内存池用到的位图结构,用于管理物理内存
-   uint32_t phy_addr_start;	  // 本内存池所管理物理内存的起始地址
-   uint32_t pool_size;		  // 本内存池字节容量
-};
-
 /* 用于虚拟地址管理，虚拟地址池 */
 struct virtual_addr {
     /* 虚拟地址用到的位图结构，用于记录哪些虚拟地址被占用了。以页为单位。*/
@@ -56,7 +49,13 @@ uint32_t* pde_ptr(uint32_t vaddr);
 void mem_init(void);
 /* 从内核物理内存池中申请pg_cnt页内存,成功则返回其虚拟地址,失败则返回NULL */
 void* get_kernel_pages(uint32_t pg_cnt);
+/* 从内核用户内存池中申请pg_cnt页内存,成功则返回其虚拟地址,失败则返回NULL */
+void* get_user_pages(uint32_t pg_cnt);
+/* 将地址vaddr与pf池中的物理地址关联,仅支持一页空间分配 */
+void* get_a_page(enum pool_flags pf, uint32_t vaddr);
 /* 分配pg_cnt个页空间,成功则返回起始虚拟地址,失败时返回NULL */
 void* malloc_page(enum pool_flags pf, uint32_t pg_cnt);
+/* 得到虚拟地址映射到的物理地址 */
+uint32_t addr_v2p(uint32_t vaddr);
 
 #endif
