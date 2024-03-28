@@ -9,6 +9,7 @@
         "init.h": "c",
         "io.h": "c",
         "ioqueue.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "syscall.h": "c"
     }
 }

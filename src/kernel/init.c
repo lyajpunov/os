@@ -7,6 +7,7 @@
 #include "console.h"
 #include "keyboard.h"
 #include "tss.h"
+#include "syscall_init.h"
 
 void init_all(void) {
     /* 1、初始化中断 */
@@ -23,4 +24,6 @@ void init_all(void) {
     keyboard_init();
     /* 7、TSS状态段初始化 */
     tss_init();
+    /* 8、系统调用初始化 */
+    syscall_init();
 }

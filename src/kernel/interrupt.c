@@ -12,6 +12,8 @@ char* intr_name[IDT_DESC_CNT];
 intr_handler idt_table[IDT_DESC_CNT];
 // 声明引用定义在kernel.S中的中断处理函数入口数组
 extern intr_handler intr_entry_table[IDT_DESC_CNT];
+// 系统调用接口
+extern uint32_t syscall_handler(void);
 
 
 /* 初始化可编程中断控制器8259A */
@@ -48,10 +50,11 @@ static void make_idt_desc(struct gate_desc* p_gdesc, uint8_t attr, intr_handler 
 /*初始化中断描述符表*/
 static void idt_desc_init(void) {
     put_str("----idt_desc_init begin!\n");
-    int i;
-    for (i = 0; i < IDT_DESC_CNT; i++) {
+    for (int i = 0; i < IDT_DESC_CNT; i++) {
         make_idt_desc(&idt[i], IDT_DESC_ATTR_DPL0, intr_entry_table[i]); 
     }
+    /* 单独处理 0x80 system call 系统调用 */
+    make_idt_desc(&idt[0x80], IDT_DESC_ATTR_DPL3, syscall_handler); 
     put_str("----dt_desc_init done!\n");
 }
 
@@ -110,6 +113,7 @@ static void exception_init(void) {
     intr_name[0x20] = "clock interrupt";
     intr_name[0x21] = "keyboard interrupt";
     intr_name[0x2e] = "Hard disk interrupt";
+    intr_name[0x80] = "System call";
 
     put_str("----exception_init end!\n");
 }
