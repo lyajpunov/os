@@ -25,7 +25,7 @@ struct task_struct* running_thread() {
 
 /* 分配pid */
 static uint32_t pid_allocate(void) {
-    static uint32_t pid_flag = 0;    // pid静态变量
+    static uint32_t pid_flag = 0;    // pid变量,这里是静态的，可以一直加上去
     lock_acquire(&pid_lock);
     pid_flag++;
     lock_release(&pid_lock);

@@ -101,6 +101,8 @@ void process_execute(void* filename, char* name) {
     thread_create(thread, start_process, filename);
     // 创建用户进程的页目录表，用户进程有自己的页目录表，这样就实现了进程的隔离
     thread->pgdir = create_page_dir();
+    // 初始化用户进程的内存块描述符
+    block_desc_init(&(thread->u_block_desc));
     // 将当前线程加入多级反馈优先队列
     mlfq_new(thread);
 }

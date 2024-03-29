@@ -10,6 +10,15 @@
         "io.h": "c",
         "ioqueue.h": "c",
         "stdint.h": "c",
-        "syscall.h": "c"
+        "syscall.h": "c",
+        "sstream": "c",
+        "console.h": "c",
+        "string.h": "c",
+        "memory": "cpp",
+        "memory.h": "c",
+        "*.tcc": "c",
+        "sync.h": "c",
+        "thread.h": "c",
+        "bitmap.h": "c"
     }
 }

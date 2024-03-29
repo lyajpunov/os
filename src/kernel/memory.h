@@ -3,6 +3,7 @@
 
 #include "stdin.h"
 #include "bitmap.h"
+#include "list.h"
 
 // 一个页框的大小，4KB
 #define PG_SIZE 4096
@@ -15,7 +16,6 @@
 // 0x100000意指跨过低端1M内存,也就是低端的1MB随我们折腾了
 #define K_HEAP_START 0xc0100000
 
-
 #define	 PG_P_1	  1	// 页表项或页目录项存在属性位
 #define	 PG_P_0	  0	// 页表项或页目录项存在属性位
 #define	 PG_RW_R  0	// R/W 属性位值, 读/执行
@@ -23,23 +23,40 @@
 #define	 PG_US_S  0	// U/S 属性位值, 系统级
 #define	 PG_US_U  4	// U/S 属性位值, 用户级
 
+#define  DESC_CNT 7	// 内存块描述符个数
 
-/* 内存池标记,用于判断用哪个内存池 */
-void malloc_init(void);
 enum pool_flags {
-    PF_KERNEL = 1,    // 内核内存池
-    PF_USER = 2	     // 用户内存池
+    PF_KERNEL = 1,  // 内核内存池
+    PF_USER = 2	    // 用户内存池
 };
 
 /* 用于虚拟地址管理，虚拟地址池 */
 struct virtual_addr {
     /* 虚拟地址用到的位图结构，用于记录哪些虚拟地址被占用了。以页为单位。*/
     struct bitmap vaddr_bitmap;
-    /* 管理的虚拟地址 */
+    /* 管理的虚拟地址的起始 */
     uint32_t vaddr_start;
 };
 
-extern struct pool kernel_pool, user_pool;
+/* 内存块 */
+struct mem_block {
+    struct list_elem free_elem;
+};
+
+/* 内存块描述符 */
+struct mem_block_desc {
+    uint32_t block_size;		 // 内存块大小
+    uint32_t blocks_per_arena;	 // 本arena中可容纳此mem_block的数量.
+    struct list free_list;    	 // 目前可用的mem_block链表
+};
+
+/* 内存仓库arena元信息 */
+struct arena {
+    struct mem_block_desc* desc; // 此arena关联的mem_block_desc
+    uint32_t cnt;                // large为ture时,cnt表示的是页框数。否则cnt表示空闲mem_block数量
+    bool large;
+};
+
 
 /* 得到虚拟地址vaddr对应的pte指针*/
 uint32_t* pte_ptr(uint32_t vaddr);
@@ -57,5 +74,11 @@ void* get_a_page(enum pool_flags pf, uint32_t vaddr);
 void* malloc_page(enum pool_flags pf, uint32_t pg_cnt);
 /* 得到虚拟地址映射到的物理地址 */
 uint32_t addr_v2p(uint32_t vaddr);
+/* 在堆中申请内存 */
+void* sys_malloc(uint32_t size);
+/* 回收堆内存 */
+void sys_free(void* ptr);
+/* 初始化块描述符 */
+void block_desc_init(struct mem_block_desc* desc_array);
 
 #endif

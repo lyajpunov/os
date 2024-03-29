@@ -1,5 +1,5 @@
-#include <print.h>
-#include <stdin.h>
+#include "print.h"
+#include "stdin.h"
 
 /* 打印字符串 */
 void put_str(char* _str) {
