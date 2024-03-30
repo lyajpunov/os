@@ -80,5 +80,9 @@ void* sys_malloc(uint32_t size);
 void sys_free(void* ptr);
 /* 初始化块描述符 */
 void block_desc_init(struct mem_block_desc* desc_array);
+/* 将物理地址pg_phy_addr回收到物理内存池,这里的回收以页为单位 */
+void pfree(uint32_t pg_phy_addr);
+/* 释放以虚拟地址vaddr为起始的cnt个页框，vaddr必须是页框起始地址 */
+void mfree_page(enum pool_flags pf, void* _vaddr, uint32_t pg_cnt);
 
 #endif

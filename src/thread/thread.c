@@ -10,6 +10,7 @@
 #include "sync.h"
 
 struct task_struct* main_thread;    // 主线程PCB，也就是我们刚进内核的程序，现在运行的程序
+struct task_struct* idle_thread;    // idle线程PCB，空闲线程，不空转浪费CPU
 struct lock pid_lock;               // 分配pid锁
 
 /* 线程转换从cur到next */
@@ -102,18 +103,23 @@ void schedule(void) {
     struct task_struct* cur = running_thread();
     // 若此线程时间片到了，那么将其重新加入到反馈优先队列
     if (cur->status == TASK_RUNNING) {
-        // 将此线程加入就绪队列
+        // 将此线程加入就绪队列，并修改状态为就绪态
         mlfq_push(cur);
     }
     else {
         // 若此线程需要某事件发生后才能继续上cpu运行,不需要将其加入队列,因为当前线程不在就绪队列中
     }
 
-    // 从就绪队列中弹出一个任务
+    // 如果没有可运行的任务,就唤醒idle，
+    if (mlfq_is_empty()) {
+        thread_unblock(idle_thread);
+    }
+
+    // 从就绪队列中弹出一个任务，如果没有可运行的任务的话，现在上CPU的就是idle
     struct task_struct* next = mlfq_pop();
     // 将就绪队列的任务的状态改为运行态
     next->status = TASK_RUNNING;
-    // 击活任务页表等
+    // 激活任务页表等
     process_activate(next);
     // 切换两个任务
     switch_to(cur, next);
@@ -130,15 +136,31 @@ void thread_block(enum task_status stat) {
 
 /* 将线程pthread解除阻塞 */
 void thread_unblock(struct task_struct* pthread) {
-    enum intr_status old_status = intr_disable();
     if (pthread->status != TASK_READY) {
         pthread->priority = 4;      // 将当前线程的优先级置位4，使其优先得到调度
         pthread->status = TASK_READY;
         mlfq_push_wspt(pthread);
     } 
+}
+
+/* 主动放弃CPU的使用 */
+void thread_yield(void) {
+    enum intr_status old_status = intr_disable();
+    struct task_struct* cur = running_thread();
+    cur->status = TASK_READY;
+    mlfq_push_wspt(cur);           // 不改变其优先级和时间片
+    schedule();
     intr_set_status(old_status);
 }
 
+/* 系统空闲时运行的线程 */
+static void idle(void* arg UNUSED) {
+    while(1) {
+        thread_block(TASK_BLOCKED); 
+        //执行hlt时必须要保证目前处在开中断的情况下
+        asm volatile ("sti; hlt" : : : "memory");
+    }
+}
 
 /* 初始化线程环境 */
 void thread_init(void) {
@@ -146,6 +168,7 @@ void thread_init(void) {
     lock_init(&pid_lock);            // pid锁初始化
     mlfq_init();                     // 多级队列初始化
     make_main_thread();              // 创建主线程
+    idle_thread = thread_start("idle", idle, NULL); // 创建idle线程
     put_str("thread_init done\n");
 }
 

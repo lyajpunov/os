@@ -23,6 +23,8 @@ void mlfq_new(struct task_struct* pthread) {
     pthread->ticks = 4;
     // 修改线程优先级
     pthread->priority = 4;
+    // 修改线程状态为就绪态
+    pthread->status = TASK_READY;
     // 最低层队列插入
     list_append(&thread_ready_list4, &pthread->general_tag);
     // 所有任务队列插入
@@ -48,6 +50,8 @@ void all_push_back(struct task_struct* pthread) {
 void mlfq_push(struct task_struct* pthread) {
     if (pthread == NULL) return;
     if (mlfq_find(pthread)) return;
+    // 修改状态为就绪态
+    pthread->status = TASK_READY;
     // 关闭中断
     enum intr_status mlqf = intr_disable();
     // 线程优先级,高优先级的先降级，但是时间片变多
@@ -85,6 +89,8 @@ void mlfq_push(struct task_struct* pthread) {
 void mlfq_push_wspt(struct task_struct* pthread) {
     if (pthread == NULL) return;
     if (mlfq_find(pthread)) return;
+    // 修改线程状态
+    pthread->status = TASK_READY;
     // 关闭中断
     enum intr_status mlqf = intr_disable();
     // 线程优先级,高优先级的先降级，但是时间片变多

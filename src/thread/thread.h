@@ -105,6 +105,8 @@ void schedule(void);
 void thread_block(enum task_status stat);
 /* 将线程pthread解除阻塞 */
 void thread_unblock(struct task_struct* pthread);
+/* 主动放弃CPU的使用 */
+void thread_yield(void);
 /* 初始化线程环境 */
 void thread_init(void);
 #endif

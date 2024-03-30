@@ -16,4 +16,7 @@ typedef unsigned long long int uint64_t;
 #define true 1
 #define DIV_ROUND_UP(X, STEP) ((X + STEP - 1) / (STEP))
 
+// 用于标记未使用的变量，在编译时不会产生未使用变量的警告。
+#define UNUSED __attribute__ ((unused))
+
 #endif

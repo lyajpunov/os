@@ -1,9 +1,10 @@
 // os/src/device/timer.c
 #include "timer.h"
 #include "io.h"
-#include "print.h"
 #include "thread.h"
 #include "assert.h"
+#include "stdin.h"
+#include "print.h"
 #include "interrupt.h"
 
 #define IRQ0_FREQUENCY     100               // IR0需要的频率
@@ -15,6 +16,8 @@
 #define CONTRER0_RWL       3                 // 读写方式位先读写低字节再读写高字节
 #define COUNTER0_BCD       0                 // 采用二进制方式
 #define PIT_CONTROL_PORT   0x43              // 控制端口
+
+#define mil_seconds_per_intr (1000 / IRQ0_FREQUENCY)
 
 /**********************
 @author: liyajun
@@ -52,6 +55,31 @@ static void intr_timer_handler(void) {
     else {
         cur_thread->ticks--;
     }
+}
+
+/**********************
+@author: liyajun
+@data: 2024.3.30 20：04
+@description: 以tick为单位的sleep
+***********************/
+static void ticks_to_sleep(uint32_t sleep_ticks) {
+    uint32_t start_tick = ticks;
+
+    /* 若间隔的ticks数不够便让出cpu */
+    while (ticks - start_tick < sleep_ticks) {
+        thread_yield();
+    }
+}
+
+/**********************
+@author: liyajun
+@data: 2024.3.30 20：04
+@description: 以毫秒为单位的sleep
+***********************/
+void mtime_sleep(uint32_t m_seconds) {
+    uint32_t sleep_ticks = DIV_ROUND_UP(m_seconds, mil_seconds_per_intr);
+    ASSERT(sleep_ticks > 0);
+    ticks_to_sleep(sleep_ticks); 
 }
 
 

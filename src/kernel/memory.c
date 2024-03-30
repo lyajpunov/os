@@ -255,7 +255,7 @@ static void mem_pool_init(uint32_t all_mem) {
     put_str("----mem_pool_init done\n");
 }
 
-/* 为malloc做准备 */
+/* 内存块描述符数组初始化 */
 void block_desc_init(struct mem_block_desc* desc_array) {
     uint32_t block_size = 16;
     // 初始化每个mem_block_desc描述符
@@ -527,11 +527,12 @@ static void arena_init(void) {
     put_str("----arena_init end!\n");
 }
 
+/* 内存资源初始化 */
 void mem_init() {
-    put_str("mem_init start\n");
-    uint32_t mem_bytes_total = (*(uint32_t*)(0xc0000809));
+    put_str("mem_init begin!\n");
+    uint32_t mem_bytes_total = (*(uint32_t*)(0xc0000809));  // 这里真实物理地址是0x809,这个是在loader中存储的
     put_str("mem_bytes_total:"); put_int(mem_bytes_total); put_str("Byte = "); put_int(mem_bytes_total / 1024 / 1024);  put_str("MB\n");
     mem_pool_init(mem_bytes_total);	  // 初始化内存池
     arena_init();                     // 初始化arena
-    put_str("mem_init done\n");
+    put_str("mem_init done!\n");
 }

@@ -8,6 +8,7 @@
 #include "keyboard.h"
 #include "tss.h"
 #include "syscall_init.h"
+#include "ide.h"
 
 void init_all(void) {
     /* 1、初始化中断 */
@@ -26,4 +27,6 @@ void init_all(void) {
     tss_init();
     /* 8、系统调用初始化 */
     syscall_init();
+    /* 9、硬盘驱动初始化 */
+    ide_init();
 }
