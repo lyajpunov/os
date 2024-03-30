@@ -9,6 +9,7 @@
 #include "tss.h"
 #include "syscall_init.h"
 #include "ide.h"
+#include "cmos.h"
 
 void init_all(void) {
     /* 1、初始化中断 */
@@ -29,4 +30,6 @@ void init_all(void) {
     syscall_init();
     /* 9、硬盘驱动初始化 */
     ide_init();
+    /* 10、时间初始化 */
+    time_init();
 }

@@ -19,6 +19,7 @@
         "*.tcc": "c",
         "sync.h": "c",
         "thread.h": "c",
-        "bitmap.h": "c"
+        "bitmap.h": "c",
+        "keyboard.h": "c"
     }
 }
