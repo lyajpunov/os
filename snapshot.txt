@@ -1,0 +1,25 @@
+Bochs VGABios (PCI) 0.8a 03 Jun 2021
+This VGA/VBE Bios is released under the GNU LGPL
+
+Please visit :
+ . http://bochs.sourceforge.net
+ . http://www.nongnu.org/vgabios
+
+Bochs VBE Display Adapter enabled
+
+Bochs 2.7 BIOS - build: 08/01/21
+$Revision: 14314 $ $Date: 2021-07-14 18:10:19 +0200 (Wed, 14 Jul 2021) $
+Options: apmbios pcibios pnpbios eltorito rombios32
+
+ata0 master: Generic 1234 ATA-6 Hard-Disk (  59 MBytes)
+ata0  slave: Generic 1234 ATA-6 Hard-Disk (  99 MBytes)
+
+Press F12 for boot menu.
+
+
+
+
+
+
+
+
