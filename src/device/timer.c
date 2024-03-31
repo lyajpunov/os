@@ -24,7 +24,7 @@
 @data: 2024.3.21 20：21
 @description: ticks是内核自中断开启以来总共的嘀嗒数
 ***********************/
-uint32_t ticks;
+uint64_t ticks;
 
 static void frequency_set(uint8_t counter_port, uint8_t counter_no, uint8_t counter_rwl, \
     uint8_t counter_mode, uint8_t counter_bcd, uint16_t counter_value) {

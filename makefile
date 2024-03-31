@@ -61,6 +61,7 @@ clear:
 	rm -rf ./bin/*
 	rm -rf bochs_out.log
 	if [ -f /home/lyj/bochs/bin/hd60M.img.lock ];then rm /home/lyj/bochs/bin/hd60M.img.lock; fi 
+	if [ -f /home/lyj/bochs/bin/hd100M.img.lock ];then rm /home/lyj/bochs/bin/hd100M.img.lock; fi 
 # 复制二进制程序
 copy:
 	dd if=bin/mbr.bin of=/home/lyj/bochs/bin/hd60M.img bs=512 count=1 seek=0 conv=notrunc

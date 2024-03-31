@@ -20,6 +20,9 @@
         "sync.h": "c",
         "thread.h": "c",
         "bitmap.h": "c",
-        "keyboard.h": "c"
+        "keyboard.h": "c",
+        "stdio.h": "c",
+        "ratio": "c",
+        "math.h": "c"
     }
 }
