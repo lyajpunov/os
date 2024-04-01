@@ -64,8 +64,8 @@ void timestamp_to_datetime(uint64_t timestamp, struct tm* datetime) {
     uint32_t year = 1970;
 
     // 计算年份
-    while (days >= 365 + (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))) {
-        days -= 365 + (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+    while (days >= 365u + (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))) {
+        days -= 365u + (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
         year++;
     }
 
@@ -78,7 +78,8 @@ void timestamp_to_datetime(uint64_t timestamp, struct tm* datetime) {
         days -= days_in_mon;
         month++;
     }
-
+    
+    datetime->tm_year = year - 1900;
     datetime->tm_mon = month - 1;
     datetime->tm_mday = days + 1;
 

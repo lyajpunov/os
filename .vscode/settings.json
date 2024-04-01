@@ -23,6 +23,8 @@
         "keyboard.h": "c",
         "stdio.h": "c",
         "ratio": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "inode.h": "c",
+        "super_block.h": "c"
     }
 }

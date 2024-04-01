@@ -10,6 +10,7 @@
 #include "syscall_init.h"
 #include "ide.h"
 #include "cmos.h"
+#include "fs.h"
 
 void init_all(void) {
     /* 1、初始化中断 */
@@ -32,4 +33,6 @@ void init_all(void) {
     syscall_init();
     /* 10、硬盘驱动初始化 */
     ide_init();
+    /* 11、文件系统初始化 */
+    filesys_init();
 }

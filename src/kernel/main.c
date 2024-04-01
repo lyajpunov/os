@@ -32,12 +32,12 @@ int main(void) {
     thread_start("k_thread_a", k_thread_a, "I am thread_a");
     thread_start("k_thread_b", k_thread_b, "I am thread_b");
 
-    uint64_t a = 0x1111111111111111;
+    uint64_t a = 1111111111111111;
 
     printk("a = %lu\n", a);
 
     // 创建时间结构体
-    struct tm* t = (struct tm*)sys_malloc(sizeof(struct tm));
+    struct tm* t;
 
     // 开机时间
     t = &time;
@@ -47,8 +47,14 @@ int main(void) {
     // 获取unix时间戳
     uint64_t now_time = get_time();
     // 将时间戳转换为时间
+    t = (struct tm*)sys_malloc(sizeof(struct tm));
     timestamp_to_datetime(now_time, t);
     // 打印当前时间戳与时间
+    printk("unix is %lu\n", now_time);
+    printk("time now is %d-%d-%d,%d:%d:%d\n", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+    now_time += (uint64_t)10000;
+
+    timestamp_to_datetime(now_time, t);
     printk("unix is %lu\n", now_time);
     printk("time now is %d-%d-%d,%d:%d:%d\n", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
 
