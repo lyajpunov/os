@@ -42,7 +42,7 @@ static void intr_timer_handler(void) {
     // 获得当前的线程
     struct task_struct* cur_thread = running_thread();
     // 检查栈是否溢出
-    ASSERT(cur_thread->stack_magic == 0x19870916);
+    ASSERT(cur_thread->stack_magic == PCB_MAGIC);
     // 记录此线程占用的cpu时间嘀
     cur_thread->elapsed_ticks++;
     // 从内核第一次处理时间中断后开始至今的滴哒数,内核态和用户态总共的嘀哒数

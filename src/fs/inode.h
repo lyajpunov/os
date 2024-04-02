@@ -2,6 +2,7 @@
 #define __FS_INODE_H
 #include "stdin.h"
 #include "list.h"
+#include "ide.h"
 
 /* inode结构 */
 struct inode {
@@ -12,10 +13,20 @@ struct inode {
     uint64_t ctime;          // inode上一次变动时间
     uint64_t mtime;          // 文件内容上一次变动时间
     uint64_t atime;          // 文件上一次打开时间
-    uint8_t privilege;       // 权限，可读可写可执行 1-7
-    uint8_t write_deny;	     // 写文件不能并行,进程写文件前检查此标识
+    uint32_t privilege;      // 权限，可读可写可执行 1-7
+    bool write_deny;	     // 写文件不能并行,进程写文件前检查此标识
     uint32_t i_sectors[13];  // i_sectors[0-11]是直接块, i_sectors[12]用来存储一级间接块指针
     struct list_elem inode_tag;
-} __attribute__((packed));
+};
+
+/* 打开inode */
+struct inode* inode_open(struct partition* part, uint32_t inode_no);
+/* 关闭inode */
+void inode_close(struct inode* inode);
+/* 写入inode到分区part */
+void inode_sync(struct partition* part, struct inode* inode);
+/* inode初始化 */
+void inode_init(uint32_t inode_no, struct inode* new_inode);
+
 
 #endif

@@ -7,6 +7,8 @@
 
 /* pcb栈顶的魔数 */
 #define PCB_MAGIC 0x19870916 
+/* 每个线程最多打开的文件数 */
+#define MAX_FILES_OPEN_PER_PROC 8 
 
 /* 自定义通用函数类型,它将在很多线程函数中做为形参类型 */
 typedef void thread_func(void*);
@@ -83,6 +85,7 @@ struct task_struct {
     uint8_t priority;		 // 线程优先级
     uint8_t ticks;	         // 每次在处理器上的执行时间的滴答数
     uint32_t elapsed_ticks;  // 这个任务总的滴答数
+    int32_t fd_table[MAX_FILES_OPEN_PER_PROC];    // 文件描述符数组,里面存放的是文件打开的描述符
     struct list_elem general_tag; // 线程在一段队列中的节点
     struct list_elem all_tag;// 线程在所有任务队列中的节点
     uint32_t* pgdir;         // 进程自己页表的虚拟地址

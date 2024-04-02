@@ -69,11 +69,22 @@ void init_thread(struct task_struct* pthread, char* name) {
     else {
         pthread->status = TASK_READY;
     }
-
+    // 文件描述符数组
+    pthread->fd_table[0] = 0;
+    pthread->fd_table[1] = 1;
+    pthread->fd_table[2] = 2;
+    for (int i = 3; i < MAX_FILES_OPEN_PER_PROC; i++) {
+        pthread->fd_table[i] = -1;
+    }
+    // 文件优先级
     pthread->priority = 4;
-    pthread->pgdir = NULL;   // 用户进程在进程初始化时处理，内核线程为NULL
+    // 用户进程在进程初始化时处理，内核线程为NULL
+    pthread->pgdir = NULL;
+    // 线程pid
     pthread->pid = pid_allocate();
+    // 线程栈顶
     pthread->self_kstack = (uint32_t*)((uint32_t)pthread + PG_SIZE);
+    // 线程魔数
     pthread->stack_magic = PCB_MAGIC;
 }
 

@@ -25,6 +25,7 @@
         "ratio": "c",
         "math.h": "c",
         "inode.h": "c",
-        "super_block.h": "c"
+        "super_block.h": "c",
+        "ide.h": "c"
     }
 }
