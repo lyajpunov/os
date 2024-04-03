@@ -1,3 +1,13 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-04-01 00:22:21
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-02 06:19:43
+ * @FilePath: /os/src/fs/dir.c
+ * @Description: 目录的基本操作
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #include "dir.h"
 #include "ide.h"
 #include "file.h"
@@ -9,13 +19,22 @@
 // 根目录
 struct dir root_dir;
 
-/* 打开根目录 */
+/**
+ * @description: 打开根目录
+ * @param {partition*} part 打开根目录的分区
+ * @return {*}
+ */
 void open_root_dir(struct partition* part) {
     root_dir.inode = inode_open(part, part->sb->root_inode_no);
     root_dir.dir_pos = 0;
 }
 
-/* 在分区part上打开i结点为inode_no的目录并返回目录指针 */
+/**
+ * @description: 在分区part上打开i结点为inode_no的目录并返回目录指针
+ * @param {partition*} part 分区
+ * @param {uint32_t} inode_no 节点
+ * @return {*}
+ */
 struct dir* dir_open(struct partition* part, uint32_t inode_no) {
     struct dir* pdir = (struct dir*)sys_malloc(sizeof(struct dir));
     pdir->inode = inode_open(part, inode_no);
@@ -23,7 +42,14 @@ struct dir* dir_open(struct partition* part, uint32_t inode_no) {
     return pdir;
 }
 
-/* 在part分区内的pdir目录内寻找名为name的文件或目录,找到后返回true并将其目录项存入dir_e,否则返回false */
+/**
+ * @description: 在part分区内的pdir目录内寻找名为name的文件或目录,找到后返回true并将其目录项存入dir_e,否则返回false
+ * @param {partition*} part 分区
+ * @param {dir*} pdir 从此目录查找
+ * @param {char*} name 文件或者目录
+ * @param {dir_entry*} dir_e 找到目录项存入dir_e
+ * @return {*}
+ */
 bool search_dir_entry(struct partition* part, struct dir* pdir, const char* name, struct dir_entry* dir_e) {
     // 12个直接块大小+128个间接块,共560字节
     uint32_t* all_blocks = (uint32_t*)sys_malloc(560);
@@ -81,7 +107,11 @@ bool search_dir_entry(struct partition* part, struct dir* pdir, const char* name
     return false;
 }
 
-/* 关闭目录 */
+/**
+ * @description: 关闭目录
+ * @param {dir*} dir 要关闭的目录
+ * @return {*}
+ */
 void dir_close(struct dir* dir) {
     // 如果是根目录是不能关闭的，根目录打开的空间直接在内核。不在堆中，不能free
     if (dir == &root_dir) return;
@@ -89,14 +119,27 @@ void dir_close(struct dir* dir) {
     sys_free(dir);
 }
 
-/* 在内存中初始化目录项p_de */
+/**
+ * @description: 在内存中初始化目录项p_de
+ * @param {char*} filename 文件名
+ * @param {uint32_t} inode_no inode编号
+ * @param {uint8_t} file_type 文件类型
+ * @param {dir_entry*} p_de 目录项
+ * @return {*}
+ */
 void create_dir_entry(char* filename, uint32_t inode_no, uint8_t file_type, struct dir_entry* p_de) {
     memcpy(p_de->filename, filename, strlen(filename));
     p_de->i_no = inode_no;
     p_de->f_type = file_type;
 }
 
-/* 将目录项p_de写入父目录parent_dir中,io_buf由主调函数提供 */
+/**
+ * @description: 将目录项p_de写入父目录parent_dir中,io_buf由主调函数提供
+ * @param {dir*} parent_dir 父目录
+ * @param {dir_entry*} p_de 要写入的目录项
+ * @param {void*} io_buf    缓存，由主调函数提供
+ * @return {*}
+ */
 bool sync_dir_entry(struct dir* parent_dir, struct dir_entry* p_de, void* io_buf) {
     // 根目录的inode
     struct inode* dir_inode = parent_dir->inode;

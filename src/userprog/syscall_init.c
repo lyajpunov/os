@@ -1,3 +1,13 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-03-28 01:03:39
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-02 07:48:35
+ * @FilePath: /os/src/userprog/syscall_init.c
+ * @Description: 系统调用初始化
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #include "syscall_init.h"
 #include "syscall.h"
 #include "stdin.h"
@@ -7,6 +17,7 @@
 #include "print.h"
 #include "interrupt.h"
 #include "memory.h"
+#include "fs.h"
 
 // 系统调用总数 
 #define syscall_nr 64
@@ -18,12 +29,6 @@ syscall syscall_table[syscall_nr];
 /* 0号调用：返回当前任务的pid */
 uint32_t sys_getpid(void) {
     return running_thread()->pid;
-}
-
-/* 1号调用：把buf中count个字符写到文件描述符fd指向的文件中 */
-uint32_t sys_write(char* str) {
-    console_put_str(str);
-    return strlen(str);
 }
 
 /* 初始化系统调用，也就是将syscall_table数组中绑定好确定的函数 */

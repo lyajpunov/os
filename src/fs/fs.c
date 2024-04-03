@@ -9,12 +9,18 @@
 #include "memory.h"
 #include "string.h"
 #include "assert.h"
+#include "console.h"
 #include "super_block.h"
 
 // 默认情况下的操作分区
 struct partition* cur_part;
 
-/* 在分区链表中找到名为part_name的分区,并将其指针赋值给cur_part */
+/**
+ * @description: 在分区链表中找到名为part_name的分区,并将其指针赋值给cur_part
+ * @param {list_elem*} pelem
+ * @param {int} arg
+ * @return {*}
+ */
 static bool mount_partition(struct list_elem* pelem, int arg) {
     // 获得分区名
     char* part_name = (char*)arg;
@@ -66,7 +72,11 @@ static bool mount_partition(struct list_elem* pelem, int arg) {
     return false;
 }
 
-/* 格式化分区,也就是初始化分区的元信息,创建文件系统 */
+/**
+ * @description: 格式化分区,也就是初始化分区的元信息,创建文件系统
+ * @param {partition*} part 分区
+ * @return {*}
+ */
 static void partition_format(struct partition* part) {
     // 导引块占一个块
     uint32_t boot_sector_sects = 1;
@@ -202,7 +212,12 @@ static void partition_format(struct partition* part) {
     sys_free(buf);
 }
 
-/* 将最上层路径名称解析出来 */
+/**
+ * @description: 将最上层路径名称解析出来
+ * @param {char*} pathname 输入路径
+ * @param {char*} name_store 返回的最上层名字
+ * @return {*} 返回减去最上层名字后的路径字符串指针
+ */
 static char* path_parse(char* pathname, char* name_store) {
     // 根目录不需要单独解析
     if (pathname[0] == '/') {
@@ -220,7 +235,11 @@ static char* path_parse(char* pathname, char* name_store) {
     return pathname;
 }
 
-/* 返回路径深度,比如/a/b/c,深度为3 */
+/**
+ * @description: 路径深度
+ * @param {char*} pathname 路径
+ * @return {*} 路径深度
+ */
 int32_t path_depth_cnt(char* pathname) {
     if (pathname == NULL) return 0;
     char* p = pathname;
@@ -239,7 +258,12 @@ int32_t path_depth_cnt(char* pathname) {
     return depth;
 }
 
-/* 搜索文件pathname,若找到则返回其inode号,否则返回-1 */
+/**
+ * @description: 搜索文件pathname,若找到则返回其inode号,否则返回-1
+ * @param {char*} pathname 路径名
+ * @param {path_search_record*} searched_record 搜索的过程中保存的上层信息
+ * @return {*}
+ */
 static int search_file(const char* pathname, struct path_search_record* searched_record) {
     // 如果待查找的是根目录,为避免下面无用的查找,直接返回已知根目录信息
     if (!strcmp(pathname, "/") || !strcmp(pathname, "/.") || !strcmp(pathname, "/..")) {
@@ -320,13 +344,12 @@ static int search_file(const char* pathname, struct path_search_record* searched
     return dir_e.i_no;
 }
 
-/********************************************************************
-@author:
-@data:
-@description: 打开或创建文件成功后,返回文件描述符,否则返回-1
-              flags为打开标识，只读，只写，读写，创建
-              只支持文件打开，不支持目录打开,以/结尾的都是目录
-*********************************************************************/
+/**
+ * @description: 打开或创建文件成功后,返回文件描述符,否则返回-1
+ * @param {char*} pathname 路径
+ * @param {uint8_t} flags 打开标识，只读，只写，读写，创建 只支持文件打开，不支持目录打开,以/结尾的都是目录
+ * @return {*}
+ */
 int32_t sys_open(const char* pathname, uint8_t flags) {
     // 如果结尾是 ‘/’ 则最后是目录
     if (pathname[strlen(pathname) - 1] == '/') {
@@ -399,7 +422,11 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
     return fd;
 }
 
-/* 将文件描述符转化为文件表的下标 */
+/**
+ * @description: 将文件描述符转化为文件表的下标 
+ * @param {uint32_t} local_fd 本地的文件描述符下标
+ * @return {*}
+ */
 static uint32_t fd_local2global(uint32_t local_fd) {
     struct task_struct* cur = running_thread();
     int32_t global_fd = cur->fd_table[local_fd];
@@ -407,7 +434,11 @@ static uint32_t fd_local2global(uint32_t local_fd) {
     return (uint32_t)global_fd;
 }
 
-/* 关闭文件描述符fd指向的文件,成功返回0,否则返回-1 */
+/**
+ * @description: 关闭文件描述符fd指向的文件,成功返回0,否则返回-1
+ * @param {int32_t} fd 文件描述符
+ * @return {*}
+ */
 int32_t sys_close(int32_t fd) {
     // 返回值默认为-1,即失败
     int32_t ret = -1;
@@ -421,7 +452,40 @@ int32_t sys_close(int32_t fd) {
     return ret;
 }
 
-/* 在磁盘上搜索文件系统,若没有则格式化分区创建文件系统 */
+/**
+ * @description: 将buf中连续count个字节写入文件描述符fd,成功则返回写入的字节数,失败返回-1
+ * @param {int32_t} fd 文件描述符
+ * @param {void*} buf 写入字符串
+ * @param {uint32_t} count 写入长度
+ * @return {*}
+ */
+int32_t sys_write(int32_t fd, const void* buf, uint32_t count) {
+    if (fd < 0) {
+        console_put_str("sys_write: fd error\n");
+        return -1;
+    }
+    if (fd == stdout_no) {
+        char tmp_buf[1024] = { 0 };
+        memcpy(tmp_buf, buf, count);
+        console_put_str(tmp_buf);
+        return count;
+    }
+    uint32_t _fd = fd_local2global(fd);
+    struct file* wr_file = &file_table[_fd];
+    if (wr_file->fd_flag & O_WRONLY || wr_file->fd_flag & O_RDWR) {
+        uint32_t bytes_written = file_write(wr_file, buf, count);
+        return bytes_written;
+    }
+    else {
+        console_put_str("sys_write: not allowed to write file without flag O_RDWR or O_WRONLY\n");
+        return -1;
+    }
+}
+
+/**
+ * @description: 在磁盘上搜索文件系统,若没有则格式化分区创建文件系统
+ * @return {*}
+ */
 void filesys_init() {
     // sb_buf用来存储从硬盘上读入的超级块
     struct super_block* sb_buf = (struct super_block*)sys_malloc(SECTOR_SIZE);
@@ -464,6 +528,7 @@ void filesys_init() {
     char default_part[8] = "sdb1";
     // 挂载分区
     list_traversal(&partition_list, mount_partition, (int)default_part);
+
     // 将当前分区的根目录打开
     open_root_dir(cur_part);
     // 初始化文件表

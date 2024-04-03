@@ -292,7 +292,8 @@ static void partition_scan(struct disk* hd, uint32_t ext_lba) {
                 hd->logic_parts[l_no].sec_cnt = p->sec_cnt;
                 hd->logic_parts[l_no].my_disk = hd;
                 list_append(&partition_list, &hd->logic_parts[l_no].part_tag);
-                sprintf(hd->logic_parts[l_no].name, "%s%d", hd->name, l_no + 5);	 // 逻辑分区数字是从5开始,主分区是1～4.
+                // 逻辑分区数字是从5开始,主分区是1～4
+                sprintf(hd->logic_parts[l_no].name, "%s%d", hd->name, l_no + 5);
                 l_no++;
                 // 只支持8个扩展分区
                 if (l_no >= 8) return;
@@ -357,7 +358,11 @@ void ide_init() {
             // 获取硬盘参数
             identify_disk(hd);
             // 扫描分区表，跳过我们存放内核的硬盘
-            if (dev_no != 0) partition_scan(hd, 0);
+            if (dev_no != 0) {
+                memset(hd->prim_parts, 0, 4 * sizeof(struct partition));
+                memset(hd->logic_parts, 0, 8 * sizeof(struct partition));
+                partition_scan(hd, 0);
+            } 
             // 扫描分区表需要用到的两个变量归0
             p_no = 0, l_no = 0;
         }

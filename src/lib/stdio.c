@@ -7,6 +7,8 @@
 #include "syscall_init.h"
 #include "math.h"
 #include "assert.h"
+#include "fs.h"
+#include "console.h"
 
 #define va_start(ap, v) ap = (va_list)&v  // 把ap指向第一个固定参数v
 #define va_arg(ap, t) *((t*)(ap += 4))	  // ap指向下一个参数并返回其值
@@ -105,13 +107,13 @@ uint32_t vsprintf(char* str, const char* format, va_list ap) {
 }
 
 /* 格式化输出字符串，内核使用 */
-uint32_t printk(const char* format, ...) {
+void printk(const char* format, ...) {
     va_list args;
     va_start(args, format);	       // 使args指向format
     char buf[1024] = { 0 };	       // 用于存储拼接后的字符串
     vsprintf(buf, format, args);   // 按照format格式输出到buf
     va_end(args);                  // 销毁指针
-    return sys_write(buf);         // 写入控制台
+    console_put_str(buf);
 }
 
 /* 格式化字符串到buf中 */
@@ -132,5 +134,5 @@ uint32_t printf(const char* format, ...) {
     char buf[1024] = { 0 };	       // 用于存储拼接后的字符串
     vsprintf(buf, format, args);   // 按照format格式输出到buf
     va_end(args);                  // 销毁指针                    // args = NULL
-    return write(buf);             // 写入控制台
+    return write(1, buf, strlen(buf));         // 写入控制台
 }

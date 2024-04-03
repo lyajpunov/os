@@ -1,3 +1,13 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-04-01 00:22:09
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-02 07:45:45
+ * @FilePath: /os/src/fs/fs.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #ifndef __FS_FS_H
 #define __FS_FS_H
 
@@ -34,13 +44,10 @@ struct path_search_record {
 
 extern struct partition* cur_part;
 
-// 文件系统初始化
 void filesys_init(void);
-// 返回路径深度
 int32_t path_depth_cnt(char* pathname);
-// 打开或创建文件成功后,返回文件描述符,否则返回-1  flags为打开标识，只读，只写，读写，创建  只支持文件打开，不支持目录打开
 int32_t sys_open(const char* pathname, uint8_t flags);
-// 关闭文件描述符fd指向的文件,成功返回0,否则返回-1 
 int32_t sys_close(int32_t fd);
+int32_t sys_write(int32_t fd, const void* buf, uint32_t count);
 
 #endif /* __FS_FS_H */

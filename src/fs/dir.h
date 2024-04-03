@@ -1,3 +1,13 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-04-01 00:22:16
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-02 06:08:50
+ * @FilePath: /os/src/fs/dir.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #ifndef __FS_DIR_H
 #define __FS_DIR_H
 
@@ -25,17 +35,11 @@ struct dir_entry {
 
 extern struct dir root_dir;             // 根目录
 
-/* 打开根目录 */
 void open_root_dir(struct partition* part);
-/* 打开目录 */
 struct dir* dir_open(struct partition* part, uint32_t inode_no);
-/* 关闭目录 */
 void dir_close(struct dir* dir);
-/* 查找目录项 */
 bool search_dir_entry(struct partition* part, struct dir* pdir, const char* name, struct dir_entry* dir_e);
-/* 创建目录项，并初始化 */
 void create_dir_entry(char* filename, uint32_t inode_no, uint8_t file_type, struct dir_entry* p_de);
-/* 将目录项p_de写入父目录parent_dir中,io_buf由主调函数提供 */
 bool sync_dir_entry(struct dir* parent_dir, struct dir_entry* p_de, void* io_buf);
 
 

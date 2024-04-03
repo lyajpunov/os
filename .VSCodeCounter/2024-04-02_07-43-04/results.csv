@@ -1,0 +1,73 @@
+"filename", "language", "Makefile", "Markdown", "C", "C++", "Assembler file", "Shell Script", "Log", "comment", "blank", "total"
+"/home/lyj/os/README.md", "Markdown", 0, 2, 0, 0, 0, 0, 0, 0, 1, 3
+"/home/lyj/os/bochs_out.log", "Log", 0, 0, 0, 0, 0, 0, 1312893, 0, 1, 1312894
+"/home/lyj/os/makefile", "Makefile", 63, 0, 0, 0, 0, 0, 0, 10, 12, 85
+"/home/lyj/os/src/boot/boot.inc", "Assembler file", 0, 0, 0, 0, 43, 0, 0, 0, 6, 49
+"/home/lyj/os/src/boot/loader.s", "Assembler file", 0, 0, 0, 0, 319, 0, 0, 0, 55, 374
+"/home/lyj/os/src/boot/mbr.s", "Assembler file", 0, 0, 0, 0, 85, 0, 0, 0, 16, 101
+"/home/lyj/os/src/device/cmos.c", "C", 0, 0, 89, 0, 0, 0, 0, 15, 25, 129
+"/home/lyj/os/src/device/cmos.h", "C++", 0, 0, 0, 24, 0, 0, 0, 6, 9, 39
+"/home/lyj/os/src/device/console.c", "C", 0, 0, 35, 0, 0, 0, 0, 7, 8, 50
+"/home/lyj/os/src/device/console.h", "C", 0, 0, 11, 0, 0, 0, 0, 0, 4, 15
+"/home/lyj/os/src/device/ide.c", "C", 0, 0, 249, 0, 0, 0, 0, 89, 30, 368
+"/home/lyj/os/src/device/ide.h", "C", 0, 0, 62, 0, 0, 0, 0, 12, 15, 89
+"/home/lyj/os/src/device/ioqueue.c", "C", 0, 0, 52, 0, 0, 0, 0, 12, 14, 78
+"/home/lyj/os/src/device/ioqueue.h", "C", 0, 0, 20, 0, 0, 0, 0, 4, 4, 28
+"/home/lyj/os/src/device/keyboard.c", "C", 0, 0, 174, 0, 0, 0, 0, 29, 22, 225
+"/home/lyj/os/src/device/keyboard.h", "C", 0, 0, 5, 0, 0, 0, 0, 0, 3, 8
+"/home/lyj/os/src/device/timer.c", "C", 0, 0, 53, 0, 0, 0, 0, 32, 13, 98
+"/home/lyj/os/src/device/timer.h", "C++", 0, 0, 0, 7, 0, 0, 0, 4, 6, 17
+"/home/lyj/os/src/fs/dir.c", "C", 0, 0, 132, 0, 0, 0, 0, 94, 21, 247
+"/home/lyj/os/src/fs/dir.h", "C", 0, 0, 25, 0, 0, 0, 0, 12, 10, 47
+"/home/lyj/os/src/fs/file.c", "C", 0, 0, 299, 0, 0, 0, 0, 157, 49, 505
+"/home/lyj/os/src/fs/file.h", "C++", 0, 0, 0, 30, 0, 0, 0, 15, 10, 55
+"/home/lyj/os/src/fs/fs.c", "C", 0, 0, 294, 0, 0, 0, 0, 162, 41, 497
+"/home/lyj/os/src/fs/fs.h", "C++", 0, 0, 0, 31, 0, 0, 0, 13, 9, 53
+"/home/lyj/os/src/fs/inode.c", "C", 0, 0, 109, 0, 0, 0, 0, 87, 19, 215
+"/home/lyj/os/src/fs/inode.h", "C", 0, 0, 23, 0, 0, 0, 0, 11, 5, 39
+"/home/lyj/os/src/fs/super_block.c", "C", 0, 0, 1, 0, 0, 0, 0, 10, 0, 11
+"/home/lyj/os/src/fs/super_block.h", "C", 0, 0, 21, 0, 0, 0, 0, 1, 9, 31
+"/home/lyj/os/src/kernel/global.h", "C", 0, 0, 59, 0, 0, 0, 0, 35, 17, 111
+"/home/lyj/os/src/kernel/init.c", "C", 0, 0, 25, 0, 0, 0, 0, 12, 1, 38
+"/home/lyj/os/src/kernel/init.h", "C", 0, 0, 4, 0, 0, 0, 0, 2, 2, 8
+"/home/lyj/os/src/kernel/interrupt.c", "C", 0, 0, 132, 0, 0, 0, 0, 20, 24, 176
+"/home/lyj/os/src/kernel/interrupt.h", "C", 0, 0, 29, 0, 0, 0, 0, 9, 10, 48
+"/home/lyj/os/src/kernel/kernel.s", "Assembler file", 0, 0, 0, 0, 108, 0, 0, 0, 10, 118
+"/home/lyj/os/src/kernel/main.c", "C", 0, 0, 40, 0, 0, 0, 0, 14, 12, 66
+"/home/lyj/os/src/kernel/memory.c", "C", 0, 0, 393, 0, 0, 0, 0, 77, 69, 539
+"/home/lyj/os/src/kernel/memory.h", "C", 0, 0, 50, 0, 0, 0, 0, 25, 14, 89
+"/home/lyj/os/src/lib/bitmap.c", "C", 0, 0, 59, 0, 0, 0, 0, 5, 15, 79
+"/home/lyj/os/src/lib/bitmap.h", "C", 0, 0, 13, 0, 0, 0, 0, 5, 6, 24
+"/home/lyj/os/src/lib/kernel/assert.c", "C", 0, 0, 13, 0, 0, 0, 0, 2, 2, 17
+"/home/lyj/os/src/lib/kernel/assert.h", "C", 0, 0, 10, 0, 0, 0, 0, 8, 4, 22
+"/home/lyj/os/src/lib/kernel/io.h", "C", 0, 0, 18, 0, 0, 0, 0, 19, 6, 43
+"/home/lyj/os/src/lib/kernel/print.c", "C", 0, 0, 60, 0, 0, 0, 0, 5, 7, 72
+"/home/lyj/os/src/lib/kernel/print.h", "C", 0, 0, 9, 0, 0, 0, 0, 5, 5, 19
+"/home/lyj/os/src/lib/kernel/put_char.s", "Assembler file", 0, 0, 0, 0, 120, 0, 0, 0, 12, 132
+"/home/lyj/os/src/lib/list.c", "C", 0, 0, 62, 0, 0, 0, 0, 5, 12, 79
+"/home/lyj/os/src/lib/list.h", "C", 0, 0, 26, 0, 0, 0, 0, 14, 8, 48
+"/home/lyj/os/src/lib/math.c", "C", 0, 0, 68, 0, 0, 0, 0, 36, 16, 120
+"/home/lyj/os/src/lib/math.h", "C", 0, 0, 36, 0, 0, 0, 0, 0, 7, 43
+"/home/lyj/os/src/lib/stdin.h", "C", 0, 0, 17, 0, 0, 0, 0, 1, 5, 23
+"/home/lyj/os/src/lib/stdio.c", "C", 0, 0, 117, 0, 0, 0, 0, 6, 14, 137
+"/home/lyj/os/src/lib/stdio.h", "C", 0, 0, 9, 0, 0, 0, 0, 4, 5, 18
+"/home/lyj/os/src/lib/string.c", "C", 0, 0, 111, 0, 0, 0, 0, 14, 11, 136
+"/home/lyj/os/src/lib/string.h", "C", 0, 0, 14, 0, 0, 0, 0, 11, 3, 28
+"/home/lyj/os/src/lib/user/syscall.c", "C", 0, 0, 53, 0, 0, 0, 0, 8, 9, 70
+"/home/lyj/os/src/lib/user/syscall.h", "C", 0, 0, 14, 0, 0, 0, 0, 4, 5, 23
+"/home/lyj/os/src/thread/mlfq.c", "C", 0, 0, 143, 0, 0, 0, 0, 41, 13, 197
+"/home/lyj/os/src/thread/mlfq.h", "C++", 0, 0, 0, 14, 0, 0, 0, 10, 4, 28
+"/home/lyj/os/src/thread/switch.s", "Assembler file", 0, 0, 0, 0, 23, 0, 0, 0, 2, 25
+"/home/lyj/os/src/thread/sync.c", "C", 0, 0, 54, 0, 0, 0, 0, 12, 16, 82
+"/home/lyj/os/src/thread/sync.h", "C", 0, 0, 21, 0, 0, 0, 0, 8, 5, 34
+"/home/lyj/os/src/thread/thread.c", "C", 0, 0, 127, 0, 0, 0, 0, 38, 21, 186
+"/home/lyj/os/src/thread/thread.h", "C", 0, 0, 73, 0, 0, 0, 0, 31, 12, 116
+"/home/lyj/os/src/userprog/process.c", "C", 0, 0, 78, 0, 0, 0, 0, 23, 9, 110
+"/home/lyj/os/src/userprog/process.h", "C", 0, 0, 13, 0, 0, 0, 0, 0, 4, 17
+"/home/lyj/os/src/userprog/syscall_init.c", "C", 0, 0, 27, 0, 0, 0, 0, 5, 6, 38
+"/home/lyj/os/src/userprog/syscall_init.h", "C++", 0, 0, 0, 7, 0, 0, 0, 0, 3, 10
+"/home/lyj/os/src/userprog/tss.c", "C", 0, 0, 35, 0, 0, 0, 0, 6, 7, 48
+"/home/lyj/os/src/userprog/tss.h", "C++", 0, 0, 0, 35, 0, 0, 0, 1, 7, 43
+"/home/lyj/os/tool/readme.md", "Markdown", 0, 6, 0, 0, 0, 0, 0, 0, 5, 11
+"/home/lyj/os/tool/xxd.sh", "Shell Script", 0, 0, 0, 0, 0, 1, 0, 0, 1, 2
+"Total", "-", 63, 8, 3666, 148, 698, 1, 1312893, 1303, 843, 1319623

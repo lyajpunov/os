@@ -1,3 +1,14 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-04-01 00:22:32
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-02 07:33:31
+ * @FilePath: /os/src/fs/inode.c
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${lyajpunov 1961558693@qq.com}, All Rights Reserved. 
+ */
+
 #include "inode.h"
 #include "stdin.h"
 #include "ide.h"
@@ -15,7 +26,13 @@ struct inode_position {
     uint32_t off_size;	    // inode在扇区内的字节偏移量
 };
 
-/* 获取inode所在的扇区和扇区内的偏移量 */
+/**
+ * @description: 获取inode所在扇区和扇区内的偏移量，方便后续的写入工作，返回值存入inode_pos
+ * @param {partition*} part 分区
+ * @param {uint32_t} inode_no inode号
+ * @param {inode_position*} inode_pos 记录inode位置的结构体
+ * @return {*}
+ */
 static void inode_locate(struct partition* part, uint32_t inode_no, struct inode_position* inode_pos) {
     // 最多4096个文件
     if (inode_no > 4096) return;
@@ -45,7 +62,12 @@ static void inode_locate(struct partition* part, uint32_t inode_no, struct inode
 }
 
 
-/* 将inode写入到分区part，io_buf是硬盘的缓冲区 */
+/**
+ * @description: 将inode信息更新到硬盘
+ * @param {partition*} part 要写入的分区
+ * @param {inode*} inode 内存地址
+ * @return {*}
+ */
 void inode_sync(struct partition* part, struct inode* inode) {
     // inode 编号
     uint8_t inode_no = inode->i_no;
@@ -91,8 +113,12 @@ void inode_sync(struct partition* part, struct inode* inode) {
     sys_free(inode_buf);
 }
 
-
-/* 根据i结点号返回相应的i结点 */
+/**
+ * @description: 打开一个inode节点
+ * @param {struct partition*} part 选择分区
+ * @param {uint32_t} inode_no 选择inode号
+ * @return {struct inode*} 返回inode结构体的指针
+ */
 struct inode* inode_open(struct partition* part, uint32_t inode_no) {
     // 先在已打开inode链表中找inode,此链表是为提速创建的缓冲区
     struct list_elem* elem = part->open_inodes.head.next;
@@ -146,14 +172,19 @@ struct inode* inode_open(struct partition* part, uint32_t inode_no) {
     return inode_found;
 }
 
-/* 关闭inode或减少inode的打开数 */
+
+/**
+ * @description: 关闭一个inode节点，释放inode节点占用的内存，如果有多个线程都打开了这个inode，那么计数器减1
+ * @param {inode*} inode 要关闭的inode节点
+ * @return {*}
+ */
 void inode_close(struct inode* inode) {
     // 关中断
     enum intr_status old_status = intr_disable();
     // 如果当前线程关闭这个inode，且没有线程再占用这个inode
     if (--inode->i_open_cnts == 0) {
         list_remove(&inode->inode_tag);
-        // 释放掉inode节点占用的堆内存
+        // 释放掉inode节点占用的堆内存,也是需要将页表值置空再恢复
         struct task_struct* cur = running_thread();
         uint32_t* cur_pagedir_bak = cur->pgdir;
         cur->pgdir = NULL;
@@ -164,7 +195,12 @@ void inode_close(struct inode* inode) {
     intr_set_status(old_status);
 }
 
-/* 初始化new_inode */
+/**
+ * @description: 初始化一个inode
+ * @param {uint32_t} inode编号
+ * @param {inode*} 新的inode节点在内存中的地址
+ * @return {*}
+ */
 void inode_init(uint32_t inode_no, struct inode* new_inode) {
     new_inode->i_no = inode_no;
     new_inode->i_size = 0;
