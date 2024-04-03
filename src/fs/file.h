@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-04-01 04:52:35
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-02 07:55:48
+ * @LastEditTime: 2024-04-03 00:13:24
  * @FilePath: /os/src/fs/file.h
  * @Description: 
  * 
@@ -51,5 +51,6 @@ int32_t pcb_fd_install(int32_t globa_fd_idx);
 int32_t file_open(uint32_t inode_no, uint8_t flag);
 int32_t file_close(struct file* file);
 int32_t file_write(struct file* file, const void* buf, uint32_t count);
+int32_t file_read(struct file* file, void* buf, uint32_t count);
 
 #endif //__FS_FILE_H

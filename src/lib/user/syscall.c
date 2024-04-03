@@ -53,11 +53,6 @@ uint32_t getpid() {
    return _syscall0(SYS_GETPID);
 }
 
-/* 打印字符串str */
-int32_t write(int32_t fd, const void* buf, uint32_t count) {
-   return _syscall3(SYS_WRITE, fd, buf, count);
-}
-
 /* 申请size字节大小的内存,并返回结果 */
 void* malloc(uint32_t size) {
    return (void*)_syscall1(SYS_MALLOC, size);
@@ -66,4 +61,14 @@ void* malloc(uint32_t size) {
 /* 释放ptr指向的内存 */
 void free(void* ptr) {
    _syscall1(SYS_FREE, ptr);
+}
+
+/* 写入文件 */
+int32_t write(int32_t fd, const void* buf, uint32_t count) {
+   return _syscall3(SYS_WRITE, fd, buf, count);
+}
+
+/* 读取文件 */
+int32_t read(int32_t fd, void* buf, uint32_t count) {
+    return _syscall3(SYS_READ, fd, buf, count);
 }

@@ -61,6 +61,7 @@
         "super_block.h": "c",
         "ide.h": "c",
         "dir.h": "c",
-        "process.h": "c"
+        "process.h": "c",
+        "fs.h": "c"
     }
 }

@@ -62,6 +62,7 @@ clear:
 	rm -rf ./build/*
 	rm -rf ./bin/*
 	rm -rf bochs_out.log
+	if [ -d /home/lyj/os/.VSCodeCounter ];then rm -rf /home/lyj/os/.VSCodeCounter; fi 
 	if [ -f /home/lyj/bochs/bin/hd60M.img.lock ];then rm /home/lyj/bochs/bin/hd60M.img.lock; fi 
 	if [ -f /home/lyj/bochs/bin/hd100M.img.lock ];then rm /home/lyj/bochs/bin/hd100M.img.lock; fi 
 # 复制二进制程序

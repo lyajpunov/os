@@ -264,7 +264,7 @@ int32_t path_depth_cnt(char* pathname) {
  * @param {path_search_record*} searched_record 搜索的过程中保存的上层信息
  * @return {*}
  */
-static int search_file(const char* pathname, struct path_search_record* searched_record) {
+int32_t search_file(const char* pathname, struct path_search_record* searched_record) {
     // 如果待查找的是根目录,为避免下面无用的查找,直接返回已知根目录信息
     if (!strcmp(pathname, "/") || !strcmp(pathname, "/.") || !strcmp(pathname, "/..")) {
         // 找到此目录的父目录为根目录
@@ -298,6 +298,7 @@ static int search_file(const char* pathname, struct path_search_record* searched
     sub_path = path_parse(sub_path, name);
     // 若第一个字符就是结束符,结束循环
     while (name[0]) {
+        ASSERT(strlen(searched_record->searched_path) < 512);
         // 记录已存在的父目录
         strcat(searched_record->searched_path, "/");
         strcat(searched_record->searched_path, name);
@@ -377,6 +378,8 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
 
     // 最后找到的文件是目录
     if (searched_record.file_type == FT_DIRECTORY) {
+        printk("%d\n", searched_record.parent_dir->inode->i_no);
+        printk("%s\n", searched_record.searched_path);
         printk("can`t open a direcotry with open(), use opendir() to instead\n");
         dir_close(searched_record.parent_dir);
         return -1;
@@ -481,6 +484,26 @@ int32_t sys_write(int32_t fd, const void* buf, uint32_t count) {
         return -1;
     }
 }
+
+
+/**
+ * @description: 从文件描述符fd指向的文件中读取count个字节到buf,若成功则返回读出的字节数,到文件尾则返回-1 
+ * @param {int32_t} fd 文件描述符
+ * @param {void*} buf 读取字符串缓冲
+ * @param {uint32_t} count 字节数
+ * @return {*}
+ */
+int32_t sys_read(int32_t fd, void* buf, uint32_t count) {
+    if (fd < 0) {
+        printk("sys_read: fd error\n");
+        return -1;
+    }
+    ASSERT(buf != NULL);
+    uint32_t _fd = fd_local2global(fd);
+    return file_read(&file_table[_fd], buf, count);   
+}
+
+
 
 /**
  * @description: 在磁盘上搜索文件系统,若没有则格式化分区创建文件系统
