@@ -84,6 +84,8 @@ void init_thread(struct task_struct* pthread, char* name) {
     pthread->pid = pid_allocate();
     // 线程栈顶
     pthread->self_kstack = (uint32_t*)((uint32_t)pthread + PG_SIZE);
+    // 以根目录作为默认工作路径
+    pthread->cwd_inode_nr = 0;
     // 线程魔数
     pthread->stack_magic = PCB_MAGIC;
 }

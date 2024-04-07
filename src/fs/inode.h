@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-04-01 00:22:27
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-02 07:31:08
+ * @LastEditTime: 2024-04-07 04:02:38
  * @FilePath: /os/src/fs/inode.h
  * @Description: 
  * 
@@ -34,5 +34,7 @@ struct inode* inode_open(struct partition* part, uint32_t inode_no);
 void inode_close(struct inode* inode);
 void inode_sync(struct partition* part, struct inode* inode);
 void inode_init(uint32_t inode_no, struct inode* new_inode);
+void inode_delete(struct partition* part, uint32_t inode_no, void* io_buf);
+void inode_release(struct partition* part, uint32_t inode_no);
 
 #endif

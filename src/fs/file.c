@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-04-01 04:52:39
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-03 01:35:12
+ * @LastEditTime: 2024-04-07 05:27:25
  * @FilePath: /os/src/fs/file.c
  * @Description: 文件的相关操作
  *
@@ -71,7 +71,7 @@ int32_t inode_bitmap_alloc(struct partition* part) {
 /**
  * @description: 分配1个扇区,返回其扇区地址
  * @param {partition*} part 分区
- * @return {*} 扇区地址
+ * @return {*} 扇区地址，失败返回-1
  */
 int32_t block_bitmap_alloc(struct partition* part) {
     int32_t bit_idx = bitmap_scan(&part->block_bitmap, 1);

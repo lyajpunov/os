@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-04-01 00:22:32
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-02 07:33:31
+ * @LastEditTime: 2024-04-07 05:39:18
  * @FilePath: /os/src/fs/inode.c
  * @Description: 
  * 
@@ -11,9 +11,12 @@
 
 #include "inode.h"
 #include "stdin.h"
+#include "file.h"
 #include "ide.h"
+#include "fs.h"
 #include "string.h"
 #include "list.h"
+#include "stdio.h"
 #include "assert.h"
 #include "super_block.h"
 #include "thread.h"
@@ -172,7 +175,6 @@ struct inode* inode_open(struct partition* part, uint32_t inode_no) {
     return inode_found;
 }
 
-
 /**
  * @description: 关闭一个inode节点，释放inode节点占用的内存，如果有多个线程都打开了这个inode，那么计数器减1
  * @param {inode*} inode 要关闭的inode节点
@@ -193,6 +195,103 @@ void inode_close(struct inode* inode) {
     }
     // 恢复中断
     intr_set_status(old_status);
+}
+
+/**
+ * @description: 将硬盘分区part上的inode清空
+ * @param {partition*} part 分区
+ * @param {uint32_t} inode_no inode编号
+ * @param {void*} io_buf 缓冲区,两个扇区大小
+ * @return {*}
+ */
+void inode_delete(struct partition* part, uint32_t inode_no, void* io_buf) {
+    if (inode_no >= 4096) {
+        printk("inode_delete error: inode_no is bigger than 4096\n");
+        return;
+    }
+
+    struct inode_position inode_pos;
+    // inode位置信息会存入inode_pos
+    inode_locate(part, inode_no, &inode_pos);
+
+    if (inode_pos.sec_lba > (part->start_lba + part->sec_cnt)) {
+        printk("inode_delete error: inode lba is bigger than hd size\n");
+        return;
+    }
+    
+    char* inode_buf = (char*)io_buf;
+    // 是否跨扇区
+    if (inode_pos.two_sec) {
+        // 将原硬盘上的内容先读出来
+        ide_read(part->my_disk, inode_pos.sec_lba, inode_buf, 2);
+        // 将inode_buf清0
+        memset((inode_buf + inode_pos.off_size), 0, sizeof(struct inode));
+        // 用清0的内存数据覆盖磁盘
+        ide_write(part->my_disk, inode_pos.sec_lba, inode_buf, 2);
+    } else {
+        // 将原硬盘上的内容先读出来
+        ide_read(part->my_disk, inode_pos.sec_lba, inode_buf, 1);
+        // 将inode_buf清0
+        memset((inode_buf + inode_pos.off_size), 0, sizeof(struct inode));
+        // 用清0的内存数据覆盖磁盘
+        ide_write(part->my_disk, inode_pos.sec_lba, inode_buf, 1);
+    }
+}
+
+/**
+ * @description: 回收inode的数据块和inode本身
+ * @param {partition*} part 扇区
+ * @param {uint32_t} inode_no inode编号
+ * @return {*}
+ */
+void inode_release(struct partition* part, uint32_t inode_no) {
+    // 获取inode
+    struct inode* inode_to_del = inode_open(part, inode_no);
+
+    // 1 回收inode占用的所有块
+    uint8_t block_idx = 0, block_cnt = 12;
+    uint32_t block_bitmap_idx;
+    uint32_t all_blocks[140] = {0};
+
+    // 1.1 先将前12个直接块存入all_blocks
+    while (block_idx < 12) {
+        all_blocks[block_idx] = inode_to_del->i_sectors[block_idx];
+        block_idx++;
+    }
+
+    // 1.2 如果一级间接块表存在,将其128个间接块读到all_blocks[12~], 并释放一级间接块表所占的扇区
+    if (inode_to_del->i_sectors[12] != 0) {
+        ide_read(part->my_disk, inode_to_del->i_sectors[12], all_blocks + 12, 1);
+        block_cnt = 140;
+        // 回收一级间接块表占用的扇区
+        block_bitmap_idx = inode_to_del->i_sectors[12] - part->sb->data_start_lba;
+        // 修改bitmap
+        bitmap_set(&part->block_bitmap, block_bitmap_idx, 0);
+        // 每次修改bitmap都要先写入硬盘
+        bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
+    }
+    
+    // 1.3 inode所有的块地址已经收集到all_blocks中,下面逐个回收
+    for (block_idx = 0; block_idx < block_cnt; block_idx++) {
+        if (all_blocks[block_idx] != 0) {
+            block_bitmap_idx = 0;
+            block_bitmap_idx = all_blocks[block_idx] - part->sb->data_start_lba;
+            bitmap_set(&part->block_bitmap, block_bitmap_idx, 0);
+            bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
+        }
+        
+    }
+    // 2 回收该inode所占用的inode
+    bitmap_set(&part->inode_bitmap, inode_no, 0);  
+    bitmap_sync(cur_part, inode_no, INODE_BITMAP);
+
+    // 3 删除inode，这部分本不需要，inode是否存在收到inode bitmap控制，其中的inode不需要清0
+    void* io_buf = sys_malloc(1024);
+    inode_delete(part, inode_no, io_buf);
+    sys_free(io_buf);
+
+    // 关闭inode
+    inode_close(inode_to_del);
 }
 
 /**
