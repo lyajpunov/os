@@ -82,6 +82,7 @@ struct task_struct {
     enum task_status status; // 线程的运行状态
     char name[16];           // 线程名，最多16个字母
     uint32_t pid;            // 线程pid，也就是线程的标识号
+    uint32_t parent_pid;     // 父进程pid
     uint8_t priority;		 // 线程优先级
     uint8_t ticks;	         // 每次在处理器上的执行时间的滴答数
     uint32_t elapsed_ticks;  // 这个任务总的滴答数
@@ -95,6 +96,8 @@ struct task_struct {
     uint32_t stack_magic;	 // 用这串数字做栈的边界标记,用于检测栈的溢出
 };
 
+
+uint32_t pid_allocate(void);
 /* 获取当前线程的pcb */
 struct task_struct* running_thread(void);
 /* 初始化线程栈thread_stack,将待执行的函数和参数放到thread_stack中相应的位置 */
@@ -111,6 +114,6 @@ void thread_block(enum task_status stat);
 void thread_unblock(struct task_struct* pthread);
 /* 主动放弃CPU的使用 */
 void thread_yield(void);
-/* 初始化线程环境 */
+void init(void);
 void thread_init(void);
 #endif

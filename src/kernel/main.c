@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-03-26 07:37:49
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-07 07:27:43
+ * @LastEditTime: 2024-04-08 00:57:43
  * @FilePath: /os/src/kernel/main.c
  * @Description:
  *
@@ -41,53 +41,20 @@ void u_prog_b(void);
 int main(void) {
     init_all();
     intr_enable();
-    process_execute(u_prog_a, "u_prog_a");
-    process_execute(u_prog_b, "u_prog_b");
-    thread_start("k_thread_a", k_thread_a, "I am thread_a");
-    thread_start("k_thread_b", k_thread_b, "I am thread_b");
-
-    sys_open("/file1",O_CREAT);
-    sys_open("/file2",O_CREAT);
-    sys_open("/file3",O_CREAT);
-    sys_mkdir("/dir1");
-    sys_mkdir("/dir1/subdir1");
-    
-    struct stat obj_stat;
-    sys_stat("/", &obj_stat);
-    printf("/`s info\n   i_no:%d\n   size:%d\n   filetype:%s\n", \
-        obj_stat.st_ino, obj_stat.st_size, \
-        obj_stat.st_filetype == 2 ? "directory" : "regular");
-    sys_stat("/dir1", &obj_stat);
-    printf("/dir1`s info\n   i_no:%d\n   size:%d\n   filetype:%s\n", \
-        obj_stat.st_ino, obj_stat.st_size, \
-        obj_stat.st_filetype == 2 ? "directory" : "regular");
-    sys_stat("/file1", &obj_stat);
-    printf("/file1`s info\n   i_no:%d\n   size:%d\n   filetype:%s\n", \
-        obj_stat.st_ino, obj_stat.st_size, \
-        obj_stat.st_filetype == 2 ? "directory" : "regular");
-
     while (1);
     return 0;
 }
 
 
-/* 在线程中运行的函数 */
-void k_thread_a(void* arg UNUSED) {
+/* init进程 */
+void init(void) {
+    uint32_t ret_pid = fork();
+    if (ret_pid) {
+        printf("i am father, my pid is %d, child pid is %d\n", getpid(), ret_pid);
+    }
+    else {
+        printf("i am child, my pid is %d, ret pid is %d\n", getpid(), ret_pid);
+    }
     while (1);
 }
 
-/* 在线程中运行的函数 */
-void k_thread_b(void* arg UNUSED) {
-    while (1);
-}
-
-/* 测试用户进程 */
-void u_prog_a(void) {
-    printf("I am u_prog_a\n");
-    while (1);
-}
-
-/* 测试用户进程 */
-void u_prog_b(void) {
-    while (1);
-}

@@ -8,6 +8,8 @@
 #include "assert.h"
 #include "process.h"
 #include "sync.h"
+#include "syscall.h"
+#include "stdio.h"
 
 struct task_struct* main_thread;    // 主线程PCB，也就是我们刚进内核的程序，现在运行的程序
 struct task_struct* idle_thread;    // idle线程PCB，空闲线程，不空转浪费CPU
@@ -24,9 +26,14 @@ struct task_struct* running_thread() {
     return (struct task_struct*)(esp & 0xfffff000);
 }
 
-/* 分配pid */
-static uint32_t pid_allocate(void) {
-    static uint32_t pid_flag = 0;    // pid变量,这里是静态的，可以一直加上去
+
+/**
+ * @description: 分配pid
+ * @return {*} pid值
+ */
+uint32_t pid_allocate(void) {
+    // pid变量,这里是静态的，可以一直加上去
+    static uint32_t pid_flag = 0;
     lock_acquire(&pid_lock);
     pid_flag++;
     lock_release(&pid_lock);
@@ -147,7 +154,11 @@ void thread_block(enum task_status stat) {
     intr_set_status(old_status);
 }
 
-/* 将线程pthread解除阻塞 */
+/**
+ * @description: 将线程pthread解除阻塞
+ * @param {task_struct*} pthread
+ * @return {*}
+ */
 void thread_unblock(struct task_struct* pthread) {
     if (pthread->status != TASK_READY) {
         pthread->priority = 4;      // 将当前线程的优先级置位4，使其优先得到调度
@@ -156,17 +167,26 @@ void thread_unblock(struct task_struct* pthread) {
     } 
 }
 
-/* 主动放弃CPU的使用 */
+/**
+ * @description: 主动放弃CPU的使用 
+ * @return {*}
+ */
 void thread_yield(void) {
     enum intr_status old_status = intr_disable();
     struct task_struct* cur = running_thread();
     cur->status = TASK_READY;
-    mlfq_push_wspt(cur);           // 不改变其优先级和时间片
+    // 不改变其优先级和时间片
+    mlfq_push_wspt(cur);
     schedule();
     intr_set_status(old_status);
 }
 
-/* 系统空闲时运行的线程 */
+
+/**
+ * @description: idle进程
+ * @param {void* arg} UNUSED
+ * @return {*}
+ */
 static void idle(void* arg UNUSED) {
     while(1) {
         thread_block(TASK_BLOCKED); 
@@ -175,13 +195,39 @@ static void idle(void* arg UNUSED) {
     }
 }
 
-/* 初始化线程环境 */
+/**
+ * @description: init进程
+ * @return {*}
+ */
+static void init_th(void) {
+    uint32_t ret_pid = fork();
+    if (ret_pid) {
+        printf("i am father, my pid is %d, child pid is %d\n", getpid(), ret_pid);
+    }
+    else {
+        printf("i am child, my pid is %d, ret pid is %d\n", getpid(), ret_pid);
+    }
+    while (1);
+}
+
+/**
+ * @description: 初始化线程环境
+ * @return {*}
+ */
 void thread_init(void) {
     put_str("thread_init start\n");
-    lock_init(&pid_lock);            // pid锁初始化
-    mlfq_init();                     // 多级队列初始化
-    make_main_thread();              // 创建主线程
-    idle_thread = thread_start("idle", idle, NULL); // 创建idle线程
+
+    // pid锁初始化
+    lock_init(&pid_lock);
+    // 多级队列初始化
+    mlfq_init();
+    // 创建第一个用户进程init
+    process_execute(init_th, "init");
+    // 创建主线程
+    make_main_thread();
+    // 创建idle线程
+    idle_thread = thread_start("idle", idle, NULL);
+
     put_str("thread_init done\n");
 }
 

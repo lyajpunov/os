@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-03-28 01:03:39
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-03 00:09:52
+ * @LastEditTime: 2024-04-08 01:01:48
  * @FilePath: /os/src/userprog/syscall_init.c
  * @Description: 系统调用初始化
  * 
@@ -18,6 +18,7 @@
 #include "interrupt.h"
 #include "memory.h"
 #include "fs.h"
+#include "fork.h"
 
 // 系统调用总数 
 #define syscall_nr 64
@@ -37,6 +38,7 @@ void syscall_init(void) {
     syscall_table[SYS_GETPID] = sys_getpid;
     syscall_table[SYS_WRITE] = sys_write;
     syscall_table[SYS_MALLOC] = sys_malloc;
+    syscall_table[SYS_FORK] = sys_fork;
     syscall_table[SYS_FREE] = sys_free;
     syscall_table[SYS_READ] = sys_read;
     put_str("syscall_init done!\n");

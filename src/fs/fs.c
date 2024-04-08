@@ -489,7 +489,6 @@ int32_t sys_write(int32_t fd, const void* buf, uint32_t count) {
     }
 }
 
-
 /**
  * @description: 从文件描述符fd指向的文件中读取count个字节到buf,若成功则返回读出的字节数,到文件尾则返回-1
  * @param {int32_t} fd 文件描述符
@@ -516,7 +515,6 @@ int32_t sys_read(int32_t fd, void* buf, uint32_t count) {
     else {
         uint32_t _fd = fd_local2global(fd);
         ret = file_read(&file_table[_fd], buf, count);
-
     }
     return ret;
 }
@@ -1049,7 +1047,6 @@ int32_t sys_stat(const char* path, struct stat* buf) {
     return ret;
 }
 
-
 /**
  * @description: 在磁盘上搜索文件系统,若没有则格式化分区创建文件系统
  * @return {*}
@@ -1085,7 +1082,7 @@ void filesys_init() {
                         partition_format(part);
                     }
 
-                    partition_format(part);
+                    // partition_format(part);
                 }
                 // 下一个分区
                 part++;

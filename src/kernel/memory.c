@@ -75,7 +75,11 @@ uint32_t* pde_ptr(uint32_t vaddr) {
     return pde;
 }
 
-/* 在m_pool指向的物理内存池中分配1个物理页,成功则返回页框的物理地址,失败则返回NULL */
+/**
+ * @description: 在m_pool指向的物理内存池中分配1个物理页,成功则返回页框的物理地址,失败则返回NULL
+ * @param {pool*} m_pool 内存池（内核内存池，用户内存池）
+ * @return {*}
+ */
 static void* palloc(struct pool* m_pool) {
     int bit_idx = bitmap_scan(&m_pool->pool_bitmap, 1);    // 找一个物理页面
     if (bit_idx == -1) {
@@ -86,7 +90,12 @@ static void* palloc(struct pool* m_pool) {
     return (void*)page_phyaddr;
 }
 
-/* 页表中添加虚拟地址_vaddr与物理地址_page_phyaddr的映射 */
+/**
+ * @description: 页表中添加虚拟地址_vaddr与物理地址_page_phyaddr的映射
+ * @param {void*} _vaddr 虚拟地址
+ * @param {void*} _page_phyaddr 物理地址
+ * @return {*}
+ */
 static void page_table_add(void* _vaddr, void* _page_phyaddr) {
     uint32_t vaddr = (uint32_t)_vaddr;
     uint32_t page_phyaddr = (uint32_t)_page_phyaddr;
@@ -195,7 +204,30 @@ void* get_a_page(enum pool_flags pf, uint32_t vaddr) {
     return (void*)vaddr;
 }
 
-/* 得到虚拟地址映射到的物理地址 */
+/**
+ * @description: 安装1页大小的vaddr,专门针对fork时虚拟地址位图无须操作的情况
+ * @param {enum pool_flags} pf 内存池标志
+ * @param {uint32_t} vaddr 虚拟地址
+ * @return {*} 虚拟地址
+ */
+void* get_a_page_without_opvaddrbitmap(enum pool_flags pf, uint32_t vaddr) {
+    struct pool* mem_pool = pf & PF_KERNEL ? &kernel_pool : &user_pool;
+    lock_acquire(&mem_pool->lock);
+    void* page_phyaddr = palloc(mem_pool);
+    if (page_phyaddr == NULL) {
+        lock_release(&mem_pool->lock);
+        return NULL;
+    }
+    page_table_add((void*)vaddr, page_phyaddr);
+    lock_release(&mem_pool->lock);
+    return (void*)vaddr;
+}
+
+/**
+ * @description: 得到虚拟地址映射到的物理地址
+ * @param {uint32_t} vaddr 虚拟地址
+ * @return {*} 物理地址
+ */
 uint32_t addr_v2p(uint32_t vaddr) {
     uint32_t* pte = pte_ptr(vaddr);
     /* (*pte)的值是页表所在的物理页框地址,去掉其低12位的页表项属性+虚拟地址vaddr的低12位 */
@@ -255,7 +287,11 @@ static void mem_pool_init(uint32_t all_mem) {
     put_str("----mem_pool_init done\n");
 }
 
-/* 内存块描述符数组初始化 */
+/**
+ * @description: 内存块描述符数组初始化
+ * @param {mem_block_desc*} desc_array 内存块描述符数组
+ * @return {*}
+ */
 void block_desc_init(struct mem_block_desc* desc_array) {
     uint32_t block_size = 16;
     // 初始化每个mem_block_desc描述符

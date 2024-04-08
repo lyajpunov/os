@@ -63,6 +63,11 @@ void free(void* ptr) {
    _syscall1(SYS_FREE, ptr);
 }
 
+/* 派生子进程,返回子进程pid */
+uint32_t fork(void) {
+   return _syscall0(SYS_FORK);
+}
+
 /* 写入文件 */
 int32_t write(int32_t fd, const void* buf, uint32_t count) {
    return _syscall3(SYS_WRITE, fd, buf, count);
@@ -72,3 +77,4 @@ int32_t write(int32_t fd, const void* buf, uint32_t count) {
 int32_t read(int32_t fd, void* buf, uint32_t count) {
     return _syscall3(SYS_READ, fd, buf, count);
 }
+

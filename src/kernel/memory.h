@@ -1,3 +1,13 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-03-26 07:37:49
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-08 00:52:43
+ * @FilePath: /os/src/kernel/memory.h
+ * @Description: 内存管理
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #ifndef __KERNEL_MEMORY_H
 #define __KERNEL_MEMORY_H
 
@@ -84,5 +94,7 @@ void block_desc_init(struct mem_block_desc* desc_array);
 void pfree(uint32_t pg_phy_addr);
 /* 释放以虚拟地址vaddr为起始的cnt个页框，vaddr必须是页框起始地址 */
 void mfree_page(enum pool_flags pf, void* _vaddr, uint32_t pg_cnt);
+
+void* get_a_page_without_opvaddrbitmap(enum pool_flags pf, uint32_t vaddr);
 
 #endif
