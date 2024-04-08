@@ -81,8 +81,8 @@ struct task_struct {
     uint32_t* self_kstack;	 // 线程或者进程内核栈的栈顶，就是pcb的高位
     enum task_status status; // 线程的运行状态
     char name[16];           // 线程名，最多16个字母
-    uint32_t pid;            // 线程pid，也就是线程的标识号
-    uint32_t parent_pid;     // 父进程pid
+    int32_t pid;            // 线程pid，也就是线程的标识号
+    int32_t parent_pid;     // 父进程pid
     uint8_t priority;		 // 线程优先级
     uint8_t ticks;	         // 每次在处理器上的执行时间的滴答数
     uint32_t elapsed_ticks;  // 这个任务总的滴答数
@@ -97,23 +97,16 @@ struct task_struct {
 };
 
 
-uint32_t pid_allocate(void);
-/* 获取当前线程的pcb */
+int32_t pid_allocate(void);
 struct task_struct* running_thread(void);
-/* 初始化线程栈thread_stack,将待执行的函数和参数放到thread_stack中相应的位置 */
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);
-/* 初始化线程基本信息,name:线程名，prio:线程优先级 */
 void init_thread(struct task_struct* pthread, char* name);
-/* 创建一个名为name，优先级为prio，运行函数function，函数参数func_arg的线程 */
 struct task_struct* thread_start(char* name, thread_func function, void* func_arg);
-/* 切换任务 */
 void schedule(void);
-/* 当前线程将自己阻塞,标志其状态为stat. */
 void thread_block(enum task_status stat);
-/* 将线程pthread解除阻塞 */
 void thread_unblock(struct task_struct* pthread);
-/* 主动放弃CPU的使用 */
 void thread_yield(void);
-void init(void);
 void thread_init(void);
+void sys_ps(void);
+
 #endif

@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-04-01 00:22:32
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-07 05:39:18
+ * @LastEditTime: 2024-04-08 05:54:30
  * @FilePath: /os/src/fs/inode.c
  * @Description: 
  * 
@@ -145,7 +145,7 @@ struct inode* inode_open(struct partition* part, uint32_t inode_no) {
     // 想要让这个inode节点被所有线程共享，只能在高1GB的内核空间，所以先降页表置为空
     struct task_struct* cur = running_thread();
 
-    // 获取页表的旧地址 #TODO
+    // 获取页表的旧地址
     uint32_t* cur_pagedir_bak = cur->pgdir;
     cur->pgdir = NULL;
     // 此时申请的内存在内核地址池

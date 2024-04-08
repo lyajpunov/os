@@ -1,3 +1,13 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-03-26 07:37:49
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-08 05:37:32
+ * @FilePath: /os/src/thread/thread.c
+ * @Description: 线程的主要代码
+ *
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved.
+ */
 #include "thread.h"
 #include "stdin.h"
 #include "string.h"
@@ -10,6 +20,10 @@
 #include "sync.h"
 #include "syscall.h"
 #include "stdio.h"
+#include "shell.h"
+#include "file.h"
+#include "fs.h"
+#include "list.h"
 
 struct task_struct* main_thread;    // 主线程PCB，也就是我们刚进内核的程序，现在运行的程序
 struct task_struct* idle_thread;    // idle线程PCB，空闲线程，不空转浪费CPU
@@ -31,7 +45,7 @@ struct task_struct* running_thread() {
  * @description: 分配pid
  * @return {*} pid值
  */
-uint32_t pid_allocate(void) {
+int32_t pid_allocate(void) {
     // pid变量,这里是静态的，可以一直加上去
     static uint32_t pid_flag = 0;
     lock_acquire(&pid_lock);
@@ -118,7 +132,7 @@ static void make_main_thread(void) {
 /* 切换任务 */
 void schedule(void) {
     ASSERT(intr_get_status() == INTR_OFF);
-    
+
     // 获得当前正在运行的程序的线程pcb
     struct task_struct* cur = running_thread();
     // 若此线程时间片到了，那么将其重新加入到反馈优先队列
@@ -164,11 +178,11 @@ void thread_unblock(struct task_struct* pthread) {
         pthread->priority = 4;      // 将当前线程的优先级置位4，使其优先得到调度
         pthread->status = TASK_READY;
         mlfq_push_wspt(pthread);
-    } 
+    }
 }
 
 /**
- * @description: 主动放弃CPU的使用 
+ * @description: 主动放弃CPU的使用
  * @return {*}
  */
 void thread_yield(void) {
@@ -181,6 +195,94 @@ void thread_yield(void) {
     intr_set_status(old_status);
 }
 
+/**
+ * @description: 以填充空格的方式输出buf
+ * @param {char*} buf 
+ * @param {int32_t} buf_len
+ * @param {void*} ptr
+ * @param {char} format
+ * @return {*}
+ */
+static void pad_print(char* buf, int32_t buf_len, void* ptr, char format) {
+    memset(buf, 0, buf_len);
+    uint8_t out_pad_0idx = 0;
+    switch (format) {
+    case 's':
+        out_pad_0idx = sprintf(buf, "%s", ptr);
+        break;
+    case 'd':
+        out_pad_0idx = sprintf(buf, "%d", *((int32_t*)ptr));
+        break;
+    case 'x':
+        out_pad_0idx = sprintf(buf, "%x", *((uint32_t*)ptr));
+        break;
+    }
+    while (out_pad_0idx < buf_len) {
+        // 以空格填充
+        buf[out_pad_0idx] = ' ';
+        out_pad_0idx++;
+    }
+    sys_write(stdout_no, buf, buf_len - 1);
+}
+
+
+/**
+ * @description: 用于在list_traversal函数中的回调函数,用于针对线程队列的处理
+ * @param {list_elem*} pelem
+ * @param {int arg} UNUSED
+ * @return {*}
+ */
+static bool elem2thread_info(struct list_elem* pelem, int arg UNUSED) {
+    struct task_struct* pthread = elem2entry(struct task_struct, all_tag, pelem);
+    char out_pad[16] = { 0 };
+
+    pad_print(out_pad, 16, &pthread->pid, 'd');
+
+    if (pthread->parent_pid == -1) {
+        pad_print(out_pad, 16, "NULL", 's');
+    }
+    else {
+        pad_print(out_pad, 16, &pthread->parent_pid, 'd');
+    }
+
+    switch (pthread->status) {
+    case 0:
+        pad_print(out_pad, 16, "RUNNING", 's');
+        break;
+    case 1:
+        pad_print(out_pad, 16, "READY", 's');
+        break;
+    case 2:
+        pad_print(out_pad, 16, "BLOCKED", 's');
+        break;
+    case 3:
+        pad_print(out_pad, 16, "WAITING", 's');
+        break;
+    case 4:
+        pad_print(out_pad, 16, "HANGING", 's');
+        break;
+    case 5:
+        pad_print(out_pad, 16, "DIED", 's');
+    }
+    pad_print(out_pad, 16, &pthread->elapsed_ticks, 'x');
+
+    memset(out_pad, 0, 16);
+    memcpy(out_pad, pthread->name, strlen(pthread->name));
+    strcat(out_pad, "\n");
+    sys_write(stdout_no, out_pad, strlen(out_pad));
+    // 此处返回false是为了迎合主调函数list_traversal,只有回调函数返回false时才会继续调用此函数
+    return false;
+}
+
+/**
+ * @description: 打印任务列表
+ * @return {*}
+ */
+void sys_ps(void) {
+    char* ps_title = "PID            PPID           STAT           TICKS          COMMAND\n";
+    sys_write(stdout_no, ps_title, strlen(ps_title));
+    list_traversal(&thread_all_list, elem2thread_info, 0);
+}
 
 /**
  * @description: idle进程
@@ -188,8 +290,8 @@ void thread_yield(void) {
  * @return {*}
  */
 static void idle(void* arg UNUSED) {
-    while(1) {
-        thread_block(TASK_BLOCKED); 
+    while (1) {
+        thread_block(TASK_BLOCKED);
         //执行hlt时必须要保证目前处在开中断的情况下
         asm volatile ("sti; hlt" : : : "memory");
     }
@@ -202,10 +304,11 @@ static void idle(void* arg UNUSED) {
 static void init_th(void) {
     uint32_t ret_pid = fork();
     if (ret_pid) {
-        printf("i am father, my pid is %d, child pid is %d\n", getpid(), ret_pid);
+        // init父线程
     }
     else {
-        printf("i am child, my pid is %d, ret pid is %d\n", getpid(), ret_pid);
+        // 子线程
+        my_shell();
     }
     while (1);
 }
@@ -221,12 +324,12 @@ void thread_init(void) {
     lock_init(&pid_lock);
     // 多级队列初始化
     mlfq_init();
-    // 创建第一个用户进程init
-    process_execute(init_th, "init");
     // 创建主线程
     make_main_thread();
     // 创建idle线程
     idle_thread = thread_start("idle", idle, NULL);
+    // 创建第一个用户进程init
+    process_execute(init_th, "init");
 
     put_str("thread_init done\n");
 }

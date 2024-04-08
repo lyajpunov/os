@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-04-01 00:22:09
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-07 07:22:36
+ * @LastEditTime: 2024-04-08 04:29:29
  * @FilePath: /os/src/fs/fs.h
  * @Description: 
  * 
@@ -60,6 +60,7 @@ extern struct partition* cur_part;
 
 void filesys_init(void);
 int32_t path_depth_cnt(char* pathname);
+char* path_parse(char* pathname, char* name_store);
 int32_t search_file(const char* pathname, struct path_search_record* searched_record);
 int32_t sys_open(const char* pathname, uint8_t flags);
 int32_t sys_close(int32_t fd);
@@ -76,5 +77,6 @@ int32_t sys_rmdir(const char* pathname);
 char* sys_getcwd(char* buf, uint32_t size);
 int32_t sys_chdir(const char* path);
 int32_t sys_stat(const char* path, struct stat* buf);
+void sys_putchar(char char_asci);
 
 #endif /* __FS_FS_H */

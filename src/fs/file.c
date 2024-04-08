@@ -2,7 +2,7 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-04-01 04:52:39
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-07 05:27:25
+ * @LastEditTime: 2024-04-08 06:01:44
  * @FilePath: /os/src/fs/file.c
  * @Description: 文件的相关操作
  *
@@ -138,8 +138,16 @@ int32_t file_create(struct dir* parent_dir, char* filename, uint8_t flag) {
         return -1;
     }
 
-    // 生成新的inode节点，在堆中，即使函数结束也不会被释放
-    struct inode* new_file_inode = (struct inode*)sys_malloc(sizeof(struct inode));
+    // 想要让这个inode节点被所有线程共享，只能在高1GB的内核空间，所以先降页表置为空
+    struct task_struct* cur = running_thread();
+    // 获取页表的旧地址
+    uint32_t* cur_pagedir_bak = cur->pgdir;
+    cur->pgdir = NULL;
+    // 此时申请的内存在内核地址池
+    struct inode* new_file_inode  = (struct inode*)sys_malloc(sizeof(struct inode));
+    // 页表的旧地址赋值
+    cur->pgdir = cur_pagedir_bak;
+
     // 失败则回滚
     if (new_file_inode == NULL) {
         printk("file_create: sys_malloc for inode failded\n");

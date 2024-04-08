@@ -1,3 +1,13 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-03-21 21:00:06
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-08 01:47:44
+ * @FilePath: /os/src/lib/kernel/print.c
+ * @Description: 内核打印函数
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #include "print.h"
 #include "stdin.h"
 

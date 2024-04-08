@@ -2,38 +2,66 @@
  * @Author: lyajpunov 1961558693@qq.com
  * @Date: 2024-03-28 00:43:36
  * @LastEditors: lyajpunov 1961558693@qq.com
- * @LastEditTime: 2024-04-08 01:07:47
+ * @LastEditTime: 2024-04-08 02:36:46
  * @FilePath: /os/src/lib/user/syscall.h
- * @Description: 
- * 
- * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved.
  */
 #ifndef __LIB_USER_SYSCALL_H
 #define __LIB_USER_SYSCALL_H
 
 #include "stdin.h"
+#include "dir.h"
+#include "fs.h"
 
 enum SYSCALL_NR {
-    SYS_GETPID,               // 0号调用：获取当前线程的pid
-    SYS_MALLOC,               // 1号调用：申请内存
-    SYS_FREE,                 // 2号调用：释放内存
-    SYS_FORK,                 // 2号调用：fork进程
-    SYS_WRITE,                // 3号调用：写入文件
-    SYS_READ,                 // 4号调用：读取文件
+    SYS_GETPID,
+    SYS_WRITE,
+    SYS_MALLOC,
+    SYS_FREE,
+    SYS_FORK,
+    SYS_READ,
+    SYS_PUTCHAR,
+    SYS_CLEAR,
+    SYS_GETCWD,
+    SYS_OPEN,
+    SYS_CLOSE,
+    SYS_LSEEK,
+    SYS_UNLINK,
+    SYS_MKDIR,
+    SYS_OPENDIR,
+    SYS_CLOSEDIR,
+    SYS_CHDIR,
+    SYS_RMDIR,
+    SYS_READDIR,
+    SYS_REWINDDIR,
+    SYS_STAT,
+    SYS_PS
 };
 
-/* 获取当前进程的pid */
 uint32_t getpid(void);
-/* 申请堆内存 */
+uint32_t write(int32_t fd, const void* buf, uint32_t count);
 void* malloc(uint32_t size);
-/* 释放堆内存 */
 void free(void* ptr);
-/* 派生子进程,返回子进程pid */
-uint32_t fork(void);
-/* 写入文件*/
-int32_t write(int32_t fd, const void* buf, uint32_t count);
-/* 读取文件 */
+int32_t fork(void);
 int32_t read(int32_t fd, void* buf, uint32_t count);
+void putchar(char char_asci);
+void clear(void);
+char* getcwd(char* buf, uint32_t size);
+int32_t open(char* pathname, uint8_t flag);
+int32_t close(int32_t fd);
+int32_t lseek(int32_t fd, int32_t offset, uint8_t whence);
+int32_t unlink(const char* pathname);
+int32_t mkdir(const char* pathname);
+struct dir* opendir(const char* name);
+int32_t closedir(struct dir* dir);
+int32_t rmdir(const char* pathname);
+struct dir_entry* readdir(struct dir* dir);
+void rewinddir(struct dir* dir);
+int32_t stat(const char* path, struct stat* buf);
+int32_t chdir(const char* path);
+void ps(void);
 
 #endif
 

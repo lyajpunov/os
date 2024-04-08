@@ -62,6 +62,8 @@
         "ide.h": "c",
         "dir.h": "c",
         "process.h": "c",
-        "fs.h": "c"
+        "fs.h": "c",
+        "mlfq.h": "c",
+        "shell.h": "c"
     }
 }

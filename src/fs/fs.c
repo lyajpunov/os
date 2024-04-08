@@ -222,7 +222,7 @@ static void partition_format(struct partition* part) {
  * @param {char*} name_store 返回的最上层名字
  * @return {*} 返回减去最上层名字后的路径字符串指针
  */
-static char* path_parse(char* pathname, char* name_store) {
+char* path_parse(char* pathname, char* name_store) {
     // 根目录不需要单独解析
     if (pathname[0] == '/') {
         // 路径中出现1个或多个连续的字符'/',将这些'/'跳过,如"///a/b"
@@ -1045,6 +1045,15 @@ int32_t sys_stat(const char* path, struct stat* buf) {
     }
     dir_close(searched_record.parent_dir);
     return ret;
+}
+
+/**
+ * @description: 向屏幕输出一个字符
+ * @param {char} char_asci
+ * @return {*}
+ */
+void sys_putchar(char char_asci) {
+    console_put_char(char_asci);
 }
 
 /**

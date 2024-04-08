@@ -13,7 +13,8 @@ INCUDIRS  := src/lib \
 			 src/kernel \
 			 src/thread \
 			 src/userprog \
-			 src/fs
+			 src/fs \
+			 src/shell
 INCLUDE   := $(patsubst %, -I %, $(INCUDIRS))
 
 ###################################################################################### C文件与S文件的编译
@@ -24,7 +25,8 @@ SRCDIRS   := src/kernel \
 			 src/device \
 			 src/thread \
 			 src/userprog \
-			 src/fs
+			 src/fs \
+			 src/shell
 
 SFILES    := $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.s))
 CFILES    := $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))

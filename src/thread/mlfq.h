@@ -1,7 +1,19 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-03-26 07:37:49
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-08 02:17:59
+ * @FilePath: /os/src/thread/mlfq.h
+ * @Description: 多级就绪队列
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #ifndef __THREAD_MLFQ_H
 #define __THREAD_MLFQ_H
 
 #include "thread.h"
+
+extern struct list thread_all_list;	    // 所有任务队列
 
 /* 多级反馈优先队列新插入一个线程 */
 void mlfq_new(struct task_struct* pthread);

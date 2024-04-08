@@ -1,3 +1,13 @@
+/*
+ * @Author: lyajpunov 1961558693@qq.com
+ * @Date: 2024-03-21 21:00:06
+ * @LastEditors: lyajpunov 1961558693@qq.com
+ * @LastEditTime: 2024-04-08 01:27:46
+ * @FilePath: /os/src/lib/kernel/print.h
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 
+ */
 #ifndef __LIB_KERNEL_PRINT_H
 #define __LIB_KERNEL_PRINT_H
 
@@ -13,6 +23,8 @@ void put_int(uint32_t num);
 void put_hex(uint32_t num);
 /* 将光标移动到cursor_pos位 */
 void set_cursor(uint32_t cursor_pos);
+/* 清屏 */
+void cls_screen(void);
 
 #endif
 
